@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">DataStructureVisualizerApp</string>
+    <string name="app_main_title">Data Structures Visualizer</string>
+    <string name="data_structure_merge">Merge Sort</string>
+    <string name="data_structure_bubble">Bubble Sort</string>
+    <string name="data_structure_selection">Selection Sort</string>
+    <string name="data_structure_insertion">Insertion Sort</string>
+    <string name="data_structure_quick">Quick Sort</string>
+    <string name="data_structure_stacks">Stacks</string>
+    <string name="data_structure_queues">Queues</string>
+    <string name="data_structure_binary_trees">Binary Trees</string>
+    <string name="data_structure_heaps">Heaps</string>
+    <string name="data_structure_doubly_linked_list">Doubly Linked Lists</string>
+    <string name="user_profile">Perfil de Usuario</string>
+
 </resources>
