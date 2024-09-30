@@ -109,24 +109,20 @@ fun topBar(){
         modifier = Modifier
             .fillMaxWidth()
             .background(colorResource(id = R.color.mainColor))
-            .systemBarsPadding(),
-        horizontalArrangement = Arrangement.Start
+            .height(100.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom
     ) {
-        Box(
+        Text(
+            text = stringResource(R.string.app_main_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = colorResource(R.color.white),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.app_main_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = colorResource(R.color.white),
-                modifier = Modifier
-                    .padding(start = 8.dp)
-            )
-        }
+                .padding(bottom = 30.dp)
+        )
     }
+
 }
 
 @Preview(showBackground = true)

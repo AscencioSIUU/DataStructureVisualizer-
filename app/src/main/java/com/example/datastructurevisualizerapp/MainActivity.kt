@@ -10,8 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.datastructurevisualizerapp.screens.LoginScreen
 import com.example.datastructurevisualizerapp.screens.NavigationBar
 import com.example.datastructurevisualizerapp.screens.topBar
 import com.example.datastructurevisualizerapp.screens.homeScreen
@@ -31,22 +36,26 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyDataStructureVisualizerApp() {
-    DataStructureVisualizerAppTheme {
-        Scaffold (
-            topBar = {
-                topBar()
-                     },
-            bottomBar = {
-                NavigationBar(editColor = 0, homeColor = 1 , profileColor = 0 )
+
+    var isLoggedIn by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            topBar()
+        },
+
+        bottomBar = {
+            if (isLoggedIn){
+                NavigationBar(editColor = 0, homeColor = 1, profileColor = 0)
             }
-        ) { paddingValues ->
-            Column (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                homeScreen()
-            }
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            LoginScreen()
         }
     }
 }
