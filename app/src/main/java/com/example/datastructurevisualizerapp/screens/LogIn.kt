@@ -22,9 +22,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import androidx.navigation.navOptions
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController) {
     // Variables para almacenar el texto de entrada
     val name = remember { mutableStateOf(TextFieldValue("")) }
     val password = remember { mutableStateOf(TextFieldValue("")) }
@@ -100,10 +102,4 @@ fun LoginScreen() {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen()
 }

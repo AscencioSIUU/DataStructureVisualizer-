@@ -11,10 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 
 @Composable
-fun homeScreen(){
+fun homeScreen(navController: NavController){
     LazyVerticalGrid (
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
@@ -30,11 +31,7 @@ fun homeScreen(){
 
 }
 
-@Preview
-@Composable
-fun previewHome(){
-    homeScreen()
-}
+
 
 private val dataStructuresCollection = listOf(
     R.drawable.mergeicon to R.string.data_structure_merge,
