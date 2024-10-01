@@ -35,12 +35,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 
 @Composable
 fun userProfileScreen(
     user: String,
     email: String,
     password: String,
+    navController: NavController
 ){
     var userName by remember { mutableStateOf("") }
     var userEmail by remember { mutableStateOf("") }
@@ -119,8 +121,3 @@ fun userProfileScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewUserProfileScreen(){
-    userProfileScreen(user = "", email = "", password = "")
-}

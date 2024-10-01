@@ -23,9 +23,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 
 @Composable
-fun CreateAccountScreen() {
+fun CreateAccountScreen(navController: NavController) {
     // Variables para almacenar el texto de entrada
     val name = remember { mutableStateOf(TextFieldValue("")) }
     val password = remember { mutableStateOf(TextFieldValue("")) }
@@ -98,7 +99,7 @@ fun CreateAccountScreen() {
                 )
             }
             Button(
-                onClick = { /* Acción de Iniciar Sesión */ },
+                onClick = { navController.navigate("login") },
                 shape = RoundedCornerShape(50.dp), // Borde redondeado
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
                 modifier = Modifier
@@ -112,10 +113,4 @@ fun CreateAccountScreen() {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CreateAccountScreenPreview() {
-    CreateAccountScreen()
 }

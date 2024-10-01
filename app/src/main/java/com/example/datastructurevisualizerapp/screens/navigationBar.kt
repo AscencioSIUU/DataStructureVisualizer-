@@ -16,6 +16,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.IconButton
@@ -28,17 +29,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 
 @Composable
-fun NavigationBar(editColor: Int, homeColor: Int, profileColor: Int) {
+fun NavigationBar(editColor: Int, homeColor: Int, profileColor: Int, navController: NavController) {
     val editColor = if (editColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
     val homeColor = if (homeColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
     val profileColor = if (profileColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
     Row (
         modifier = Modifier
             .background(colorResource(id = R.color.mainColor))
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .navigationBarsPadding(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Box(
@@ -53,29 +56,15 @@ fun NavigationBar(editColor: Int, homeColor: Int, profileColor: Int) {
                     size = this.size
                 )
             }
-            Icon(
-                Icons.Filled.Create,
-                contentDescription = null,
-                tint = editColor
-            )
-        }
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .padding(8.dp),
-            contentAlignment = Alignment.Center
-        ){
-            Canvas(modifier = Modifier.size(100.dp)) {
-                drawOval(
-                    color = Color(0xFF4B5563),
-                    size = this.size
+            IconButton(
+                onClick = { navController.navigate("writeData") }
+            ) {
+                Icon(
+                    Icons.Filled.Create,
+                    contentDescription = null,
+                    tint = editColor
                 )
             }
-            Icon(
-                Icons.Filled.Home,
-                contentDescription = null,
-                tint = homeColor
-            )
         }
         Box(
             modifier = Modifier
@@ -90,7 +79,29 @@ fun NavigationBar(editColor: Int, homeColor: Int, profileColor: Int) {
                 )
             }
             IconButton(
-                onClick = {}
+                onClick = {navController.navigate("home")}
+            ) {
+                Icon(
+                    Icons.Filled.Home,
+                    contentDescription = null,
+                    tint = homeColor
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ){
+            Canvas(modifier = Modifier.size(100.dp)) {
+                drawOval(
+                    color = Color(0xFF4B5563),
+                    size = this.size
+                )
+            }
+            IconButton(
+                onClick = {navController.navigate("profile")}
             ){
                 Icon(
                     Icons.Filled.AccountCircle,
@@ -123,17 +134,5 @@ fun topBar(){
         )
     }
 
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewNavigationBar(){
-    NavigationBar(editColor = 0, homeColor = 1, profileColor = 0)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTopBar(){
-    topBar()
 }
 

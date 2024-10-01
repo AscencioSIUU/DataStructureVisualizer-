@@ -26,7 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.navOptions
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, onLogin: () -> Unit) {
     // Variables para almacenar el texto de entrada
     val name = remember { mutableStateOf(TextFieldValue("")) }
     val password = remember { mutableStateOf(TextFieldValue("")) }
@@ -75,7 +75,7 @@ fun LoginScreen(navController: NavController) {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
-                onClick = { /* Acción de Iniciar Sesión */ },
+                onClick = { navController.navigate("createAccount") },
                 shape = RoundedCornerShape(50.dp), // Borde redondeado
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
                 modifier = Modifier
@@ -88,7 +88,10 @@ fun LoginScreen(navController: NavController) {
                 )
             }
             Button(
-                onClick = { navController.navigate("home") },
+                onClick = {
+                    onLogin()
+                    navController.navigate("home")
+                },
                 shape = RoundedCornerShape(50.dp), // Borde redondeado
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
                 modifier = Modifier

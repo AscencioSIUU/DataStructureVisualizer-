@@ -16,9 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.datastructurevisualizerapp.R
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @Composable
-fun WriteData(){
+fun WriteData(navController: NavController){
     Column (
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -40,8 +41,3 @@ fun WriteData(){
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewWriteData(){
-    WriteData()
-}
