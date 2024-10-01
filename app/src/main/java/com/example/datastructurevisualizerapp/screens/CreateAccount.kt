@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 fun CreateAccountScreen(navController: NavController) {
     // Variables para almacenar el texto de entrada
     val name = remember { mutableStateOf(TextFieldValue("")) }
+    val email = remember { mutableStateOf(TextFieldValue("")) }
     val password = remember { mutableStateOf(TextFieldValue("")) }
 
     Column(
@@ -60,8 +61,8 @@ fun CreateAccountScreen(navController: NavController) {
 
         // Campo de texto para el email
         OutlinedTextField(
-            value = password.value,
-            onValueChange = { password.value = it },
+            value = email.value,
+            onValueChange = { email.value = it },
             label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -86,9 +87,10 @@ fun CreateAccountScreen(navController: NavController) {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
-                onClick = { /* Acción de Iniciar Sesión */ },
+                onClick = { /* Acción de para crear cuenta */ },
                 shape = RoundedCornerShape(50.dp), // Borde redondeado
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
+                enabled = name.value.text.isNotEmpty() && email.value.text.isNotEmpty() && password.value.text.isNotEmpty(),
                 modifier = Modifier
                     .padding(8.dp)
             ) {

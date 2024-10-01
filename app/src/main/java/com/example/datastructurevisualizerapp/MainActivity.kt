@@ -53,6 +53,9 @@ fun MyDataStructureVisualizerApp() {
 
     var isLoggedIn by remember { mutableStateOf(false) }
     val navController = rememberNavController() //controlador de la navegación
+    var userName by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf("") }
+    var userPassword by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -61,7 +64,15 @@ fun MyDataStructureVisualizerApp() {
 
         bottomBar = {
             if (isLoggedIn){
-                NavigationBar(editColor = 0, homeColor = 1, profileColor = 0, navController)
+                NavigationBar(
+                    editColor = 0,
+                    homeColor = 1,
+                    profileColor = 0,
+                    navController,
+                    user = userName,
+                    email = userEmail,
+                    password = userPassword
+                )
             }
         }
     ) { paddingValues ->
@@ -72,21 +83,36 @@ fun MyDataStructureVisualizerApp() {
         ) {
             NavHost( navController = navController, startDestination = "login") {
                 composable("login") {
-                    LoginScreen(navController){
+                    LoginScreen(navController) { name, email, password ->
+                        userName = name
+                        userEmail = email
+                        userPassword = password
                         isLoggedIn = true
                     }
                 }
                 composable("createAccount"){
                     CreateAccountScreen(navController)
                 }
-                composable("home") {
-                    homeScreen(navController)
+
+                composable("home/{user}/{email}/{password}") { backStackEntry ->
+                    val user = backStackEntry.arguments?.getString("user")
+                    val email = backStackEntry.arguments?.getString("email")
+                    val password = backStackEntry.arguments?.getString("password")
+
+                    homeScreen(navController,user = user.orEmpty(), email = email.orEmpty(), password = password.orEmpty())
                 }
+
                 composable("writeData") {
                     WriteData(navController)
                 }
-                composable("profile") {
-                    userProfileScreen("esteban","estebancarcamou@gmail.com","1234",navController)
+                composable("profile/{user}/{email}/{password}") { backStackEntry ->
+
+                    val user = backStackEntry.arguments?.getString("user")
+                    val email = backStackEntry.arguments?.getString("email")
+                    val password = backStackEntry.arguments?.getString("password")
+
+
+                    userProfileScreen(user.toString(),email.toString(),password.toString(),navController)
                 }
 
             }

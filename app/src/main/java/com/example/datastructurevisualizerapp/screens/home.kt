@@ -15,7 +15,7 @@ import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 
 @Composable
-fun homeScreen(navController: NavController){
+fun homeScreen(navController: NavController, user: String, email: String, password: String){
     LazyVerticalGrid (
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
@@ -28,6 +28,7 @@ fun homeScreen(navController: NavController){
             )
         }
     }
+
 
 }
 

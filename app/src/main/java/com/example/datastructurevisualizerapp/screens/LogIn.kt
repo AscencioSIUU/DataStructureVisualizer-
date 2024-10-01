@@ -26,10 +26,10 @@ import androidx.navigation.NavController
 import androidx.navigation.navOptions
 
 @Composable
-fun LoginScreen(navController: NavController, onLogin: () -> Unit) {
-    // Variables para almacenar el texto de entrada
+fun LoginScreen(navController: NavController, onLogin: (String, String, String) -> Unit) {    // Variables para almacenar el texto de entrada
     val name = remember { mutableStateOf(TextFieldValue("")) }
     val password = remember { mutableStateOf(TextFieldValue("")) }
+    val email = remember { mutableStateOf(TextFieldValue("")) }
 
     Column(
         modifier = Modifier
@@ -52,6 +52,18 @@ fun LoginScreen(navController: NavController, onLogin: () -> Unit) {
             value = name.value,
             onValueChange = { name.value = it },
             label = { Text("Nombre") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+                .padding(horizontal = 30.dp)
+        )
+
+
+        // Campo de texto para el email
+        OutlinedTextField(
+            value = email.value,
+            onValueChange = { email.value = it },
+            label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -89,9 +101,10 @@ fun LoginScreen(navController: NavController, onLogin: () -> Unit) {
             }
             Button(
                 onClick = {
-                    onLogin()
-                    navController.navigate("home")
+                    onLogin(name.value.text,email.value.text,password.value.text)
+                    navController.navigate("home/${name.value.text}/${email.value.text}/${password.value.text}")
                 },
+                enabled = name.value.text.isNotEmpty() && email.value.text.isNotEmpty() && password.value.text.isNotEmpty(),
                 shape = RoundedCornerShape(50.dp), // Borde redondeado
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
                 modifier = Modifier

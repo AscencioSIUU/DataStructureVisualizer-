@@ -33,7 +33,15 @@ import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 
 @Composable
-fun NavigationBar(editColor: Int, homeColor: Int, profileColor: Int, navController: NavController) {
+fun NavigationBar(
+    editColor: Int,
+    homeColor: Int,
+    profileColor: Int,
+    navController: NavController,
+    user: String,
+    email: String,
+    password: String
+) {
     val editColor = if (editColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
     val homeColor = if (homeColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
     val profileColor = if (profileColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
@@ -79,7 +87,7 @@ fun NavigationBar(editColor: Int, homeColor: Int, profileColor: Int, navControll
                 )
             }
             IconButton(
-                onClick = {navController.navigate("home")}
+                onClick = {navController.navigate("home/$user/$email/$password")}
             ) {
                 Icon(
                     Icons.Filled.Home,
@@ -101,7 +109,7 @@ fun NavigationBar(editColor: Int, homeColor: Int, profileColor: Int, navControll
                 )
             }
             IconButton(
-                onClick = {navController.navigate("profile")}
+                onClick = {navController.navigate("profile/$user/$email/$password")}
             ){
                 Icon(
                     Icons.Filled.AccountCircle,
