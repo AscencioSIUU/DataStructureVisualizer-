@@ -88,7 +88,7 @@ fun LoginScreen(navController: NavController) {
                 )
             }
             Button(
-                onClick = { /* Acción de Iniciar Sesión */ },
+                onClick = { navController.navigate("home") },
                 shape = RoundedCornerShape(50.dp), // Borde redondeado
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
                 modifier = Modifier
