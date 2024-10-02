@@ -41,6 +41,7 @@ fun dataStructureBox(
             .clip(RoundedCornerShape(16.dp))
             .background(color = colorResource(R.color.cardBackground)),
         contentAlignment = Alignment.Center,
+
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
