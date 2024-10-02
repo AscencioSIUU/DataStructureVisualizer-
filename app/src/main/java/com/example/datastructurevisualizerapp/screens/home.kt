@@ -24,7 +24,8 @@ fun homeScreen(navController: NavController, user: String, email: String, passwo
         items(dataStructuresCollection.size) { index ->
             dataStructureBox(
                 drawable = dataStructuresCollection[index].drawable,
-                text = dataStructuresCollection[index].text
+                text = dataStructuresCollection[index].text,
+                navController = navController
             )
         }
     }
