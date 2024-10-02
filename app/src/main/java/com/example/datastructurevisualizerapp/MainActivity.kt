@@ -117,7 +117,7 @@ fun MyDataStructureVisualizerApp() {
 
                     userProfileScreen(user.toString(),email.toString(),password.toString(),navController)
                 }
-                composable("stack") {
+                composable("Stacks") {
                     val stackViewModel: StackViewModel = viewModel()
                     StackVisualizer(viewModel = stackViewModel)
                 }
