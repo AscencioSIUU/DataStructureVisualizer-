@@ -46,7 +46,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.round
 import kotlin.random.Random
-
+/*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+*/
 @Composable
 fun BarGraph(
     normalizedBars: List<NormalizedBar>,

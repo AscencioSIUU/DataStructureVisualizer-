@@ -28,11 +28,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.datastructurevisualizerapp.screens.BarGraphViewModel
 import com.example.datastructurevisualizerapp.screens.CreateAccountScreen
 import com.example.datastructurevisualizerapp.screens.LoginScreen
 import com.example.datastructurevisualizerapp.screens.NavigationBar
 import com.example.datastructurevisualizerapp.screens.StackViewModel
 import com.example.datastructurevisualizerapp.screens.StackVisualizer
+import com.example.datastructurevisualizerapp.screens.TestingBarGraph
 import com.example.datastructurevisualizerapp.screens.WriteData
 import com.example.datastructurevisualizerapp.screens.topBar
 import com.example.datastructurevisualizerapp.screens.homeScreen
@@ -120,6 +122,12 @@ fun MyDataStructureVisualizerApp() {
                 composable("Stacks") {
                     val stackViewModel: StackViewModel = viewModel()
                     StackVisualizer(viewModel = stackViewModel)
+                }
+
+                composable("Insertion Sort") {
+                    val barGraphViewModel = BarGraphViewModel()
+                    TestingBarGraph(barGraphViewModel = barGraphViewModel)
+
                 }
 
             }
