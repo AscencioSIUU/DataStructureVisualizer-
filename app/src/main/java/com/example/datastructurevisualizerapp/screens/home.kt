@@ -1,5 +1,7 @@
 package com.example.datastructurevisualizerapp.screens
 
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import com.example.datastructurevisualizerapp.components.homeComponents.dataStructureBox
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -10,11 +12,18 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 
 @Composable
 fun homeScreen(navController: NavController, user: String, email: String, password: String){
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
+
     LazyVerticalGrid (
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),

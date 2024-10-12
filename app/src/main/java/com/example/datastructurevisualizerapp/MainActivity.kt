@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,11 +58,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyDataStructureVisualizerApp() {
 
-    var isLoggedIn by remember { mutableStateOf(false) }
+    var isLoggedIn by rememberSaveable  { mutableStateOf(false) }
     val navController = rememberNavController() //controlador de la navegación
-    var userName by remember { mutableStateOf("") }
-    var userEmail by remember { mutableStateOf("") }
-    var userPassword by remember { mutableStateOf("") }
+    var userName by rememberSaveable { mutableStateOf("") }
+    var userEmail by rememberSaveable { mutableStateOf("") }
+    var userPassword by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         topBar = {
