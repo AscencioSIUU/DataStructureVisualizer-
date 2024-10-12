@@ -72,9 +72,6 @@ fun MyDataStructureVisualizerApp() {
         bottomBar = {
             if (isLoggedIn){
                 NavigationBar(
-                    editColor = 0,
-                    homeColor = 1,
-                    profileColor = 0,
                     navController,
                     user = userName,
                     email = userEmail,
