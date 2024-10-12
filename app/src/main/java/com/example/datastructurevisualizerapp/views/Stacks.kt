@@ -1,4 +1,4 @@
-package com.example.datastructurevisualizerapp.screens
+package com.example.datastructurevisualizerapp.views
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable

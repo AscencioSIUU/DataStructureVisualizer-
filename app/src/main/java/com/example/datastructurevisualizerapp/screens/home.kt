@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 
@@ -45,7 +44,7 @@ private val dataStructuresCollection = listOf(
     R.drawable.queuesicon to R.string.data_structure_queues,
     R.drawable.binarytreesicon to R.string.data_structure_binary_trees,
     R.drawable.heapsicon to R.string.data_structure_heaps,
-    R.drawable.doublylinkedlistsicon to R.string.data_structure_doubly_linked_list
+    R.drawable.doublelinkedlistsicon to R.string.data_structure_double_linked_list
 ).map { DrawableStringPair(it.first, it.second) }
 
 private data class DrawableStringPair(
