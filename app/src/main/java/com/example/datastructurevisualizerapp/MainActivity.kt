@@ -1,9 +1,11 @@
 package com.example.datastructurevisualizerapp
 
-
 import android.os.Bundle
+import android.util.Log
+import kotlinx.coroutines.*
 import android.text.Selection
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalFullyDrawnReporterOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +46,9 @@ import com.example.datastructurevisualizerapp.views.MergeSortVisualizer
 import com.example.datastructurevisualizerapp.views.QueuesVisualizer
 import com.example.datastructurevisualizerapp.views.QuickSortVisualizer
 import com.example.datastructurevisualizerapp.views.SelectionSortVisualizer
+import com.example.datastructurevisualizerapp.data.CoinRepository
+import com.example.datastructurevisualizerapp.domain.models.Coin
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +70,26 @@ fun MyDataStructureVisualizerApp() {
     var userName by rememberSaveable { mutableStateOf("") }
     var userEmail by rememberSaveable { mutableStateOf("") }
     var userPassword by rememberSaveable { mutableStateOf("") }
+    val coinRepository = CoinRepository()
+
+    var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            try {
+                val fetchedCoins = coinRepository.getAllCoins()
+                val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
+                coins = fetchedCoinPrices
+                coins.forEach{coin ->
+                    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                }
+
+            } catch (e: Exception) {
+                Log.e("CoinDataError", "${e.message}")
+            }
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -166,12 +192,6 @@ fun MyDataStructureVisualizerApp() {
                 composable("Double Linked Lists") {
                     DoubleLinkedListsVisualizer()
                 }
-
-
-
-
-
-
             }
         }
     }
