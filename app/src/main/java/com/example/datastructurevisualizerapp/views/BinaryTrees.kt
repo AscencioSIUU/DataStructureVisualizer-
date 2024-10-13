@@ -12,20 +12,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import android.util.Log
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.nativeCanvas
+import kotlin.math.max
 
 @Composable
 fun BinaryTreesVisualizer() {
     // Predefinido array de valores que se agregarán uno por uno
-    val predefinedValues = listOf(23, 12, 45, 56, 86, 34, 56,45,34,23,12,45,67,78,76,54,67)
+    val predefinedValues = listOf(23, 12, 45, 56, 86, 34, 56, 45, 34, 23, 12, 45, 67, 78, 76, 54, 67, 80, 90, 102, 230)
 
     // Lista de valores que efectivamente se están usando en el árbol
     var currentTree by remember { mutableStateOf<TreeNode?>(null) }
     var index by remember { mutableStateOf(0) }
 
+    // Estados de desplazamiento para scroll horizontal y vertical
+    val scrollStateVertical = rememberScrollState()
+    val scrollStateHorizontal = rememberScrollState()
+
     // Interfaz para agregar elementos al árbol
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollStateVertical)
+            .horizontalScroll(scrollStateHorizontal)
+    ) {
         Row(modifier = Modifier.padding(16.dp)) {
             Button(
                 onClick = {
@@ -68,11 +80,20 @@ fun BinaryTreesVisualizer() {
 
 @Composable
 fun BinaryTreeCanvas(treeNode: TreeNode?) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    // Calculamos el tamaño necesario para el Canvas
+    val treeHeight = getTreeHeight(treeNode)
+    val canvasHeight = treeHeight * 150f + 200f  // Ajusta según el espaciado vertical
+    val canvasWidth = getTreeWidth(treeNode) * 100f + 200f  // Ajusta según el espaciado horizontal
+
+    Box(
+        modifier = Modifier
+            .width(canvasWidth.dp)
+            .height(canvasHeight.dp)
+    ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             if (treeNode != null) {
                 // Dibuja el árbol con espaciado dinámico basado en el tamaño del árbol
-                drawBinaryTree(treeNode, x = size.width / 2, y = 100f, level = 0, nodeSpacing = size.width / 2)
+                drawBinaryTree(treeNode, x = size.width / 2, y = 100f, level = 0, nodeSpacing = size.width / 4)
             }
         }
     }
@@ -106,7 +127,7 @@ fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBinaryTree(
         )
 
         // Espaciado horizontal para los nodos hijos, ajustado dinámicamente
-        val childSpacing = nodeSpacing / 2
+        val childSpacing = nodeSpacing / 1.5f
 
         // Dibuja la conexión hacia el hijo izquierdo
         if (treeNode.left != null) {
@@ -146,6 +167,19 @@ fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBinaryTree(
             )
         }
     }
+}
+
+// Función para obtener la altura del árbol
+fun getTreeHeight(node: TreeNode?): Int {
+    if (node == null) return 0
+    return 1 + max(getTreeHeight(node.left), getTreeHeight(node.right))
+}
+
+// Función para obtener el ancho máximo del árbol
+fun getTreeWidth(node: TreeNode?): Int {
+    if (node == null) return 0
+    if (node.left == null && node.right == null) return 1
+    return getTreeWidth(node.left) + getTreeWidth(node.right)
 }
 
 // Función para insertar valores en el árbol (árbol inmutable)
