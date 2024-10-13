@@ -2,8 +2,7 @@ package com.example.datastructurevisualizerapp.views
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,42 +16,104 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.nativeCanvas
 import kotlin.math.max
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 
 @Composable
 fun BinaryTreesVisualizer() {
     // Predefinido array de valores que se agregarán uno por uno
     val predefinedValues = listOf(23, 12, 45, 56, 86, 34, 56, 45, 34, 23, 12, 45, 67, 78, 76, 54, 67, 80, 90, 102, 230)
 
-    // Lista de valores que efectivamente se están usando en el árbol
+    // Árbol binario actual
     var currentTree by remember { mutableStateOf<TreeNode?>(null) }
     var index by remember { mutableStateOf(0) }
 
-    // Estados de desplazamiento para scroll horizontal y vertical
+    // Lista de valores actualmente en el árbol
+    var treeValues by remember { mutableStateOf<List<Int>>(emptyList()) }
+
+    // Estados para scroll horizontal y vertical
     val scrollStateVertical = rememberScrollState()
     val scrollStateHorizontal = rememberScrollState()
 
-    // Interfaz para agregar elementos al árbol
+    // Estado para el menú desplegable
+    var expanded by remember { mutableStateOf(false) }
+    var selectedValueToDelete by remember { mutableStateOf<Int?>(null) }
+
+    // Interfaz para agregar y eliminar elementos del árbol
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollStateVertical)
             .horizontalScroll(scrollStateHorizontal)
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Button(
                 onClick = {
                     if (index < predefinedValues.size) {
                         val newValue = predefinedValues[index]
                         currentTree = insert(currentTree, newValue)  // Inserta el nuevo valor al árbol
                         index++  // Avanza el índice al siguiente valor
+                        // Actualiza la lista de valores en el árbol
+                        treeValues = getTreeValues(currentTree)
                         // Log para ver la estructura del árbol tras cada inserción
                         Log.d("BinaryTree", "Nodo agregado: $newValue")
                         printTree(currentTree)
                     }
                 },
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(end = 8.dp)
             ) {
                 Text("Agregar")
+            }
+
+            // Menú desplegable para seleccionar el valor a eliminar
+            Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
+                Button(
+                    onClick = { expanded = true },
+                    enabled = treeValues.isNotEmpty()
+                ) {
+                    Text(text = selectedValueToDelete?.toString() ?: "Seleccione valor")
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    treeValues.forEach { value ->
+                        DropdownMenuItem(
+                            text = { Text(text = value.toString()) },
+                            onClick = {
+                                selectedValueToDelete = value
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Botón para eliminar el valor seleccionado
+            Button(
+                onClick = {
+                    if (selectedValueToDelete != null) {
+                        currentTree = delete(currentTree, selectedValueToDelete!!)
+                        // Actualiza la lista de valores en el árbol
+                        treeValues = getTreeValues(currentTree)
+                        // Log para ver la estructura del árbol tras la eliminación
+                        Log.d("BinaryTree", "Nodo eliminado: $selectedValueToDelete")
+                        printTree(currentTree)
+                        // Reinicia el valor seleccionado
+                        selectedValueToDelete = null
+                    }
+                },
+                enabled = selectedValueToDelete != null,
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Text("Eliminar")
             }
         }
 
@@ -67,7 +128,7 @@ fun BinaryTreesVisualizer() {
                 BinaryTreeCanvas(treeNode = currentTree)
             }
         } else {
-            // Mensaje para indicar que el árbol está vacío al inicio
+            // Mensaje para indicar que el árbol está vacío
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -195,6 +256,51 @@ fun insert(root: TreeNode?, value: Int): TreeNode {
         Log.d("BinaryTree", "Insertando a la derecha de ${root.value}: $value")
         root.copy(right = insert(root.right, value))
     }
+}
+
+// Función para eliminar un valor del árbol (árbol inmutable)
+fun delete(root: TreeNode?, value: Int): TreeNode? {
+    if (root == null) {
+        return null
+    }
+    return when {
+        value < root.value -> {
+            root.copy(left = delete(root.left, value))
+        }
+        value > root.value -> {
+            root.copy(right = delete(root.right, value))
+        }
+        else -> { // value == root.value
+            // Nodo a eliminar encontrado
+            if (root.left == null && root.right == null) {
+                null // Sin hijos
+            } else if (root.left == null) {
+                root.right // Un hijo (derecha)
+            } else if (root.right == null) {
+                root.left // Un hijo (izquierda)
+            } else {
+                // Nodo con dos hijos: obtener el sucesor en inorden (el más pequeño del subárbol derecho)
+                val successorValue = findMinValue(root.right)
+                root.copy(
+                    value = successorValue,
+                    right = delete(root.right, successorValue)
+                )
+            }
+        }
+    }
+}
+
+// Función para encontrar el valor mínimo en un árbol (utilizado en la eliminación)
+fun findMinValue(node: TreeNode?): Int {
+    return node?.left?.let { findMinValue(it) } ?: node!!.value
+}
+
+// Función para obtener la lista de valores en el árbol (recorrido inorden)
+fun getTreeValues(node: TreeNode?): List<Int> {
+    if (node == null) return emptyList()
+    val leftValues = getTreeValues(node.left)
+    val rightValues = getTreeValues(node.right)
+    return leftValues + node.value + rightValues
 }
 
 // Función auxiliar para imprimir el árbol en los logs
