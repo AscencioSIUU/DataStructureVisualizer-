@@ -37,6 +37,7 @@ fun dataStructureBox(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
+    //se usa string resource porque viene de un stringRes, asi fue configurado en el home
     val textString = stringResource(text)
     Box(
         modifier = modifier
@@ -62,7 +63,7 @@ fun dataStructureBox(
                     .padding(bottom = 8.dp)
             )
             Text(
-                text = stringResource(text),
+                text = textString,
                 style = MaterialTheme.typography.titleMedium,
                 color = colorResource(R.color.textCardColor),
                 modifier = Modifier

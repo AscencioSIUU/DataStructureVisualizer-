@@ -10,7 +10,7 @@
     <string name="data_structure_queues">Queues</string>
     <string name="data_structure_binary_trees">Binary Trees</string>
     <string name="data_structure_heaps">Heaps</string>
-    <string name="data_structure_doubly_linked_list">Doubly Linked Lists</string>
+    <string name="data_structure_double_linked_list">Double Linked Lists</string>
     <string name="user_profile">Perfil de Usuario</string>
 
     <string name="insert_data">Ingrese sus datos a mostrar</string>

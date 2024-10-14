@@ -26,6 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,17 +39,17 @@ import com.example.datastructurevisualizerapp.R
 
 @Composable
 fun NavigationBar(
-    editColor: Int,
-    homeColor: Int,
-    profileColor: Int,
     navController: NavController,
     user: String,
     email: String,
     password: String
 ) {
-    val editColor = if (editColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
-    val homeColor = if (homeColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
-    val profileColor = if (profileColor == 1) Color(0xFF32CD32) else Color(0xFFFFFFFF)
+    var selectedItem by remember { mutableStateOf(1) }
+
+    fun getItemColor(itemIndex: Int): Color {
+        return if(selectedItem == itemIndex) Color(0xFF32CD32) else Color(0xFFFFFFFF)
+    }
+
     Row (
         modifier = Modifier
             .background(colorResource(id = R.color.mainColor))
@@ -52,6 +57,7 @@ fun NavigationBar(
             .navigationBarsPadding(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+        //Write data icon
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -65,12 +71,15 @@ fun NavigationBar(
                 )
             }
             IconButton(
-                onClick = { navController.navigate("writeData") }
+                onClick = {
+                    selectedItem = 0
+                    navController.navigate("writeData")
+                }
             ) {
                 Icon(
                     Icons.Filled.Create,
                     contentDescription = null,
-                    tint = editColor
+                    tint = getItemColor(0)
                 )
             }
         }
@@ -87,15 +96,19 @@ fun NavigationBar(
                 )
             }
             IconButton(
-                onClick = {navController.navigate("home/$user/$email/$password")}
+                onClick = {
+                    selectedItem = 1
+                    navController.navigate("home/$user/$email/$password")
+                }
             ) {
                 Icon(
                     Icons.Filled.Home,
                     contentDescription = null,
-                    tint = homeColor
+                    tint = getItemColor(1)
                 )
             }
         }
+        //Profile Icon
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -109,12 +122,15 @@ fun NavigationBar(
                 )
             }
             IconButton(
-                onClick = {navController.navigate("profile/$user/$email/$password")}
+                onClick = {
+                    selectedItem = 2
+                    navController.navigate("profile/$user/$email/$password")
+                }
             ){
                 Icon(
                     Icons.Filled.AccountCircle,
                     contentDescription = null,
-                    tint = profileColor
+                    tint = getItemColor(2)
                 )
 
             }

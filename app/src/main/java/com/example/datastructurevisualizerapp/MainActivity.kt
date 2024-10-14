@@ -1,43 +1,54 @@
 package com.example.datastructurevisualizerapp
 
-
 import android.os.Bundle
 import android.util.Log
+import kotlinx.coroutines.*
+import android.text.Selection
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalFullyDrawnReporterOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.datastructurevisualizerapp.views.BarGraphViewModel
 import com.example.datastructurevisualizerapp.screens.CreateAccountScreen
 import com.example.datastructurevisualizerapp.screens.LoginScreen
 import com.example.datastructurevisualizerapp.screens.NavigationBar
-import com.example.datastructurevisualizerapp.screens.StackViewModel
-import com.example.datastructurevisualizerapp.screens.StackVisualizer
+import com.example.datastructurevisualizerapp.views.StackViewModel
+import com.example.datastructurevisualizerapp.views.StackVisualizer
+import com.example.datastructurevisualizerapp.views.TestingBarGraph
 import com.example.datastructurevisualizerapp.screens.WriteData
 import com.example.datastructurevisualizerapp.screens.topBar
 import com.example.datastructurevisualizerapp.screens.homeScreen
 import com.example.datastructurevisualizerapp.screens.userProfileScreen
 import com.example.datastructurevisualizerapp.ui.theme.DataStructureVisualizerAppTheme
+import com.example.datastructurevisualizerapp.views.BinaryTreesVisualizer
+import com.example.datastructurevisualizerapp.views.BubbleSortVisualizer
+import com.example.datastructurevisualizerapp.views.DoubleLinkedListsVisualizer
+import com.example.datastructurevisualizerapp.views.HeapsVisualizer
+import com.example.datastructurevisualizerapp.views.MergeSortVisualizer
+import com.example.datastructurevisualizerapp.views.QueuesVisualizer
+import com.example.datastructurevisualizerapp.views.QuickSortVisualizer
+import com.example.datastructurevisualizerapp.views.SelectionSortVisualizer
+import com.example.datastructurevisualizerapp.data.CoinRepository
+import com.example.datastructurevisualizerapp.domain.models.Coin
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,11 +65,31 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyDataStructureVisualizerApp() {
 
-    var isLoggedIn by remember { mutableStateOf(false) }
+    var isLoggedIn by rememberSaveable  { mutableStateOf(false) }
     val navController = rememberNavController() //controlador de la navegación
-    var userName by remember { mutableStateOf("") }
-    var userEmail by remember { mutableStateOf("") }
-    var userPassword by remember { mutableStateOf("") }
+    var userName by rememberSaveable { mutableStateOf("") }
+    var userEmail by rememberSaveable { mutableStateOf("") }
+    var userPassword by rememberSaveable { mutableStateOf("") }
+    val coinRepository = CoinRepository()
+
+    var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            try {
+                val fetchedCoins = coinRepository.getAllCoins()
+                val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
+                coins = fetchedCoinPrices
+                coins.forEach{coin ->
+                    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                }
+
+            } catch (e: Exception) {
+                Log.e("CoinDataError", "${e.message}")
+            }
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -68,9 +99,6 @@ fun MyDataStructureVisualizerApp() {
         bottomBar = {
             if (isLoggedIn){
                 NavigationBar(
-                    editColor = 0,
-                    homeColor = 1,
-                    profileColor = 0,
                     navController,
                     user = userName,
                     email = userEmail,
@@ -84,6 +112,7 @@ fun MyDataStructureVisualizerApp() {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+
             NavHost( navController = navController, startDestination = "login") {
                 composable("login") {
                     LoginScreen(navController) { name, email, password ->
@@ -117,11 +146,52 @@ fun MyDataStructureVisualizerApp() {
 
                     userProfileScreen(user.toString(),email.toString(),password.toString(),navController)
                 }
+
+                //navegacion de todas las pantallas
+                composable("Merge Sort") {
+                    MergeSortVisualizer()
+                }
+
+                composable("Bubble Sort") {
+                    BubbleSortVisualizer()
+                }
+
+                composable("Selection Sort") {
+                    SelectionSortVisualizer()
+                }
+
+
+                composable("Insertion Sort") {
+                    val barGraphViewModel = BarGraphViewModel()
+                    TestingBarGraph(barGraphViewModel = barGraphViewModel)
+
+                }
+
+                composable("Quick Sort") {
+                    QuickSortVisualizer()
+                }
+
                 composable("Stacks") {
                     val stackViewModel: StackViewModel = viewModel()
                     StackVisualizer(viewModel = stackViewModel)
                 }
 
+                composable("Queues") {
+                    QueuesVisualizer()
+                }
+
+                composable("Binary Trees") {
+                    BinaryTreesVisualizer()  // Llama a la función que maneja el árbol binario
+                }
+
+
+                composable("Heaps") {
+                    HeapsVisualizer()
+                }
+
+                composable("Double Linked Lists") {
+                    DoubleLinkedListsVisualizer()
+                }
             }
         }
     }
