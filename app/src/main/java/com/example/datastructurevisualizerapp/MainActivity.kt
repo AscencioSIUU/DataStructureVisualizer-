@@ -165,8 +165,8 @@ fun MyDataStructureVisualizerApp() {
 
 
                 composable("Insertion Sort") {
-                    val barGraphViewModel = BarGraphViewModel()
-                    TestingBarGraph(barGraphViewModel = barGraphViewModel)
+                    //val barGraphViewModel = BarGraphViewModel()
+                    //TestingBarGraph(barGraphViewModel = barGraphViewModel)
 
                 }
 

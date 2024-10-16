@@ -7,15 +7,17 @@ import com.example.datastructurevisualizerapp.algorithmLogic.InsertionSortStrate
 import com.example.datastructurevisualizerapp.algorithmLogic.SelectionSortStrategy
 import com.example.datastructurevisualizerapp.algorithmLogic.SortingContext
 import com.example.datastructurevisualizerapp.algorithmLogic.SortingEnum
-import com.example.datastructurevisualizerapp.data.data_source.NormalizedBar
-import com.example.datastructurevisualizerapp.data.data_source.getNormalizedList
+import com.example.datastructurevisualizerapp.data.NormalizedBar
 import kotlinx.coroutines.launch
 
-class BarGraphViewModel(normalizedBar: List<NormalizedBar> = getNormalizedList()): ViewModel(){
+class BarGraphViewModel(normalizedBar: List<NormalizedBar>, heights: List<Float>): ViewModel(){
     private var _normalizedBars = normalizedBar.toMutableList()
+    val heights = heights
     private val sortingContext = SortingContext()
     val normalizedBars: List<NormalizedBar>
         get() = _normalizedBars
+
+
 
     fun setListItem(index: Int, item: NormalizedBar){
         _normalizedBars[index] = item

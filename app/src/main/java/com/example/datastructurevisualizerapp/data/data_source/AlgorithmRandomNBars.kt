@@ -1,13 +1,19 @@
 package com.example.datastructurevisualizerapp.data.data_source
 
-import com.example.datastructurevisualizerapp.data.data_source.NormalizedBar
+import com.example.datastructurevisualizerapp.data.BarData
+import com.example.datastructurevisualizerapp.data.NormalizedBar
+import kotlin.math.ceil
 
-fun getNormalizedList(start: Int = 1, end: Int = 100, samples: Int = 10): List<NormalizedBar> {
 
-    val rawData = List(samples) { (start..end).random() }
+fun getBarData(start: Int = 1, end: Int = 100, samples: Int = 10): BarData {
+
+    val rawData = List(samples) { (start..end).random().toFloat() }
 
     val max = rawData.maxOrNull() ?: 1
 
-    return List(samples) { NormalizedBar(normalizedHeight = rawData[it]/max.toFloat(), label ="", initialIsSelected = false) }
+    val normalizedData = List(samples) { NormalizedBar(normalizedHeight = rawData[it]/max.toFloat(), label ="A${it}", initialIsSelected = false) }
 
+    val marks = ceil(samples/3f).toInt()
+    val scaleMarks = List(marks) { (it.toFloat() / marks) * max.toFloat() }
+    return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks)
 }
