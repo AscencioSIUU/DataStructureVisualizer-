@@ -7,8 +7,8 @@ import com.example.datastructurevisualizerapp.algorithmLogic.InsertionSortStrate
 import com.example.datastructurevisualizerapp.algorithmLogic.SelectionSortStrategy
 import com.example.datastructurevisualizerapp.algorithmLogic.SortingContext
 import com.example.datastructurevisualizerapp.algorithmLogic.SortingEnum
+import com.example.datastructurevisualizerapp.data.data_source.NormalizedBar
 import com.example.datastructurevisualizerapp.data.data_source.getNormalizedList
-import com.example.datastructurevisualizerapp.views.NormalizedBar
 import kotlinx.coroutines.launch
 
 class BarGraphViewModel(normalizedBar: List<NormalizedBar> = getNormalizedList()): ViewModel(){

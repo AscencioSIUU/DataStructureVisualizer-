@@ -1,6 +1,6 @@
 package com.example.datastructurevisualizerapp.data.data_source
 
-import com.example.datastructurevisualizerapp.views.NormalizedBar
+import com.example.datastructurevisualizerapp.data.data_source.NormalizedBar
 
 fun getNormalizedList(start: Int = 1, end: Int = 100, samples: Int = 10): List<NormalizedBar> {
 
