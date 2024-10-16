@@ -2,6 +2,7 @@ package com.example.datastructurevisualizerapp.views
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,15 +10,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -27,22 +42,44 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.datastructurevisualizerapp.algorithmLogic.SortingEnum
 import com.example.datastructurevisualizerapp.data.NormalizedBar
 import com.example.datastructurevisualizerapp.data.data_source.getBarData
+import com.example.datastructurevisualizerapp.ui.theme.customColor1ContainerDark
+import com.example.datastructurevisualizerapp.ui.theme.onCustomColor2Dark
 import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 
-/*
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            val barGraphViewModel = BarGraphViewModel()
-            TestingBarGraph(barGraphViewModel = barGraphViewModel)
+
+@Composable
+fun AlgorithmScreen(modifier: Modifier = Modifier, barGraphViewModel: BarGraphViewModel, sortingEnum: SortingEnum) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        barGraphViewModel.setSortingStrategy(sortingEnum)
+        BarGraph2(normalizedBars = barGraphViewModel.normalizedBars, scaleMarks = barGraphViewModel.scaleMarks)
+        Button(
+            onClick = { barGraphViewModel.sort() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+        ) {
+            Text("Sort")
+        }
+        Button(
+            onClick = { barGraphViewModel.resetData() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        ) {
+            Text("Reset")
         }
     }
 }
-*/
+
 @Composable
 fun BarGraph(
     normalizedBars: List<NormalizedBar>,
@@ -58,6 +95,7 @@ fun BarGraph(
     Box(
         modifier = Modifier
             .background(Color.White)
+            .padding(25.dp)
             .width(graphWidth)
             .height(graphHeight)
     ){
@@ -150,47 +188,53 @@ fun BarGraph2(
     modifier: Modifier = Modifier
 ) {
     val textMeasurer = rememberTextMeasurer()
-
+    val defultColor = onCustomColor2Dark
+    val selectedColor = customColor1ContainerDark
+    val textColor = MaterialTheme.colorScheme.onSurface
     Box(
         modifier = Modifier
-            .background(Color.Magenta)
+            .padding(25.dp)
+            .background(MaterialTheme.colorScheme.surface)
             .width(graphWidth)
             .height(graphHeight)
     ){
-
         Spacer(
             modifier = Modifier
                 .padding(
                     bottom = horizontalLabelHeight,
-                    )
+                )
                 .fillMaxSize()
                 .drawBehind {
 
                     val offset = Offset(
                         x = verticalLabelWidth.toPx(),
-                        y= 0f
+                        y = 0f
                     )
 
-                    val target = borderWidth.toPx()/4 + upperGap.toPx()
+                    val target = borderWidth.toPx() / 4 + upperGap.toPx()
                     val axe = size.height - target
-                    val step = axe/(scaleMarks.size - 1)
+                    val step = axe / (scaleMarks.size - 1)
 
+                    /*
                     drawRect(
                         color = Color.Black,
                         style = Stroke(borderWidth.toPx()),
                         topLeft = offset
-                    )
+                    )*/
 
 
                     scaleMarks.forEachIndexed { index, fl ->
                         drawText(
-                            textMeasurer.measure(
-                                text = fl.toString(),
+                            brush = SolidColor(textColor),
+                            textLayoutResult =  textMeasurer.measure(
+                                text = fl
+                                    .toInt()
+                                    .toString(),
                                 style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)
                             ),
                             topLeft = offset.copy(
-                                x = verticalLabelWidth.toPx() - borderWidth.toPx() *4,
-                                y = size.height - index * step
+                                x = verticalLabelWidth.toPx() - borderWidth.toPx() * 4,
+                                y = (size.height - borderWidth.toPx() * 2) - index * step
                             )
                         )
                     }
@@ -202,31 +246,51 @@ fun BarGraph2(
             modifier = Modifier
                 .fillMaxSize()
                 .drawWithCache {
-                    val barWidth = (size.width - borderWidth.toPx() - verticalLabelWidth.toPx()) / normalizedBars.size
-                    val barMaxHeight = (size.height - upperGap.toPx() - borderWidth.toPx() - horizontalLabelHeight.toPx())
+                    val barWidth =
+                        (size.width - borderWidth.toPx() - verticalLabelWidth.toPx()) / normalizedBars.size
+                    val barMaxHeight =
+                        (size.height - upperGap.toPx() - borderWidth.toPx() - horizontalLabelHeight.toPx())
 
                     onDrawBehind {
 
                         repeat(normalizedBars.size) { i ->
                             val offset = Offset(
-                                (barWidth * i) + borderWidth.toPx()/2 + verticalLabelWidth.toPx(),
-                                size.height - (borderWidth.toPx()/2 + horizontalLabelHeight.toPx())
+                                (barWidth * i) + borderWidth.toPx() / 2 + verticalLabelWidth.toPx(),
+                                size.height - (borderWidth.toPx() / 2 + horizontalLabelHeight.toPx())
                             )
                             drawRect(
-                                color = if (normalizedBars[i].selected) Color.Yellow else Color.Blue,
+                                color = if (normalizedBars[i].selected) selectedColor else defultColor,
                                 topLeft = offset,
                                 size = Size(
                                     width = barWidth,
                                     height = -normalizedBars[i].normalizedHeight * barMaxHeight
                                 )
                             )
+                            /*
                             drawText(
-                                textMeasurer.measure(
+                                brush = SolidColor(textColor),
+                                textLayoutResult =  textMeasurer.measure(
                                     text = normalizedBars[i].label,
                                     constraints = Constraints.fixedWidth(barWidth.toInt()),
-                                    style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)
+                                    style = TextStyle(
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Center,
+                                    )
                                 ),
                                 topLeft = offset.copy(y = size.height - horizontalLabelHeight.toPx() + borderWidth.toPx())
+                            )*/
+                            drawRotatedText(
+                                brush = SolidColor(textColor),
+                                textLayoutResult =  textMeasurer.measure(
+                                    text = normalizedBars[i].label,
+                                    constraints = Constraints.fixedWidth(barWidth.toInt()*2),
+                                    style = TextStyle(
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Left,
+                                    )
+                                ),
+                                topLeft = offset.copy(x = (barWidth * i) + borderWidth.toPx() * 2.5f + verticalLabelWidth.toPx(), y = size.height - horizontalLabelHeight.toPx() + borderWidth.toPx()),
+                                angle = 90f
                             )
 
                         }
@@ -238,66 +302,23 @@ fun BarGraph2(
 }
 
 
-@Composable
-fun ChatPBarGraph(
-    normalizedBars: List<NormalizedBar>,
-    modifier: Modifier = Modifier,
-    graphWidth: Dp = 395.dp,
-    graphHeight: Dp = 500.dp,
-    borderWidth: Dp = 4.dp,
-    upperGap: Dp = 25.dp,
-    labelHeight: Dp = 20.dp
+
+@OptIn(ExperimentalTextApi::class)
+fun DrawScope.drawRotatedText(
+    brush: Brush,
+    angle: Float,
+    topLeft: Offset,
+    textLayoutResult: TextLayoutResult
 ) {
-    val textMeasurer = rememberTextMeasurer() // Used to measure text size
-
-    // Draw the entire graph and labels using drawWithCache for optimal performance
-    Box(
-        modifier = Modifier
-            .background(Color.White)
-            .width(graphWidth)
-            .height(graphHeight)
-
-            //.height(graphHeight + labelHeight)
-    ){
-        Spacer(modifier = Modifier
-
-            .drawWithCache {
-                val barWidth = size.width / normalizedBars.size
-
-                onDrawBehind {
-                    // Draw the border
-                    drawRect(
-                        color = Color.Black,
-                        style = Stroke(width = borderWidth.toPx())
-                    )
-
-                    // Draw bars and labels for each normalized bar
-                    normalizedBars.forEachIndexed { index, bar ->
-                        val barHeight = bar.normalizedHeight * (size.height - labelHeight.toPx())
-                        val offsetX = index * barWidth
-
-                        // Draw each bar
-                        drawRect(
-                            color = if (bar.selected) Color.Yellow else Color.Blue,
-                            topLeft = Offset(offsetX, size.height - barHeight - labelHeight.toPx()),
-                            size = Size(barWidth, barHeight)
-                        )
-
-                        // Measure and draw the label text at the bottom
-                        val labelResult = textMeasurer.measure(bar.label)
-                        drawText(
-                            textLayoutResult = labelResult,
-                            topLeft = Offset(
-                                x = offsetX + (barWidth - labelResult.size.width) / 2,
-                                y = size.height - labelHeight.toPx() / 2
-                            )
-                        )
-                    }
-                }
-            }
+    rotate(degrees = angle, pivot = topLeft) { // Rotate around the given offset
+        drawText(
+            brush = brush,
+            textLayoutResult = textLayoutResult,
+            topLeft = topLeft,
         )
     }
 }
+
 
 @Composable
 fun TestingBarGraph(modifier: Modifier = Modifier, barGraphViewModel: BarGraphViewModel) {
@@ -307,7 +328,7 @@ fun TestingBarGraph(modifier: Modifier = Modifier, barGraphViewModel: BarGraphVi
         BarGraph2(
             modifier = Modifier.padding(30.dp),
             normalizedBars = barGraphViewModel.normalizedBars,
-            scaleMarks = barGraphViewModel.heights
+            scaleMarks = barGraphViewModel.scaleMarks
         )
 
     //}
@@ -318,7 +339,7 @@ fun TestingBarGraph(modifier: Modifier = Modifier, barGraphViewModel: BarGraphVi
 @Composable
 private fun TestingNormalized() {
     val barData = getBarData()
-    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, heights =  barData.scaleMarks)
+    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks =  barData.scaleMarks)
     Column(){
         barGraphViewModel.normalizedBars.forEachIndexed { i, bar ->
             Text(text = bar.normalizedHeight.toString())
@@ -331,7 +352,7 @@ private fun TestingNormalized() {
 @Composable
 private fun TestingScale() {
     val barData = getBarData()
-    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, heights =  barData.scaleMarks)
+    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks =  barData.scaleMarks)
     Column(){
         barData.scaleMarks.forEachIndexed { i, bar ->
             Text(text = bar.toString())
@@ -344,7 +365,7 @@ private fun TestingScale() {
 @Composable
 private fun Preview() {
     val barData = getBarData()
-    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, heights =  barData.scaleMarks)
+    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks =  barData.scaleMarks)
     TestingBarGraph(barGraphViewModel = barGraphViewModel)
 }
 

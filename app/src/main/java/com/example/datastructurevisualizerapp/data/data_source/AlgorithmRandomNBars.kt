@@ -5,7 +5,7 @@ import com.example.datastructurevisualizerapp.data.NormalizedBar
 import kotlin.math.ceil
 
 
-fun getBarData(start: Int = 1, end: Int = 100, samples: Int = 10): BarData {
+fun getBarData(start: Int = 1, end: Int = 100, samples: Int =  20): BarData {
 
     val rawData = List(samples) { (start..end).random().toFloat() }
 

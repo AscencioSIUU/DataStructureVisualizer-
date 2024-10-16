@@ -3,6 +3,8 @@ package com.example.datastructurevisualizerapp.algorithmLogic
 import com.example.datastructurevisualizerapp.data.NormalizedBar
 import kotlinx.coroutines.delay
 
+val delayTime = 15L
+
 class BubbleSortStrategy(): SortingStrategy {
     //var swapped: Boolean
     override suspend fun sort(normalizedList: MutableList<NormalizedBar>) {
@@ -12,19 +14,19 @@ class BubbleSortStrategy(): SortingStrategy {
                     // Swap the bars
 
                     normalizedList[j].selected = true
-                    delay(15L)
+                    delay(delayTime)
 
                     normalizedList[j + 1].selected = true
-                    delay(15L)
+                    delay(delayTime)
 
                     val temp = normalizedList[j]
 
-                    delay(15L)
+                    delay(delayTime)
 
                     normalizedList[j] = normalizedList[j + 1]
                     normalizedList[j +1] = temp
 
-                    delay(15L)
+                    delay(delayTime)
 
                     normalizedList[j].selected = false
                     normalizedList[j + 1].selected = false
@@ -103,16 +105,16 @@ class SelectionSortStrategy(): SortingStrategy {
             if (minIndex != i) {
                 //Select both bars
                 normalizedList[minIndex].selected = true;
-                delay(400L)
+                delay(delayTime)
 
                 normalizedList[i].selected = true;
-                delay(400L)
+                delay(delayTime)
 
                 //Swap bars
                 val temp = normalizedList[i]
                 normalizedList[i] = normalizedList[minIndex]
                 normalizedList[minIndex] = temp
-                delay(400L)
+                delay(delayTime)
 
                 normalizedList[minIndex].selected = false;
                 normalizedList[i].selected = false;

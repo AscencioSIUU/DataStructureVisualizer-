@@ -3,15 +3,12 @@ package com.example.datastructurevisualizerapp
 import android.os.Bundle
 import android.util.Log
 import kotlinx.coroutines.*
-import android.text.Selection
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalFullyDrawnReporterOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,7 +19,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -31,7 +27,6 @@ import com.example.datastructurevisualizerapp.screens.LoginScreen
 import com.example.datastructurevisualizerapp.screens.NavigationBar
 import com.example.datastructurevisualizerapp.views.StackViewModel
 import com.example.datastructurevisualizerapp.views.StackVisualizer
-import com.example.datastructurevisualizerapp.views.TestingBarGraph
 import com.example.datastructurevisualizerapp.screens.WriteData
 import com.example.datastructurevisualizerapp.screens.topBar
 import com.example.datastructurevisualizerapp.screens.homeScreen
@@ -46,8 +41,10 @@ import com.example.datastructurevisualizerapp.views.QueuesVisualizer
 import com.example.datastructurevisualizerapp.views.QuickSortVisualizer
 import com.example.datastructurevisualizerapp.views.SelectionSortVisualizer
 import com.example.datastructurevisualizerapp.data.CoinRepository
+import com.example.datastructurevisualizerapp.data.data_source.getBarData
 import com.example.datastructurevisualizerapp.domain.models.Coin
 import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
+import com.example.datastructurevisualizerapp.views.InsertionSortVisualizer
 
 
 class MainActivity : ComponentActivity() {
@@ -71,6 +68,9 @@ fun MyDataStructureVisualizerApp() {
     var userEmail by rememberSaveable { mutableStateOf("") }
     var userPassword by rememberSaveable { mutableStateOf("") }
     val coinRepository = CoinRepository()
+
+    val barData = getBarData()
+    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks =  barData.scaleMarks)
 
     var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
 
@@ -115,6 +115,7 @@ fun MyDataStructureVisualizerApp() {
 
             NavHost( navController = navController, startDestination = "login") {
 
+
                 var valuesList = listOf(23, 12, 45, 56, 86, 34, 56, 45, 34, 23, 12, 45, 67, 78, 76, 54, 67, 80, 90, 102, 230)
 
                 composable("login") {
@@ -156,18 +157,18 @@ fun MyDataStructureVisualizerApp() {
                 }
 
                 composable("Bubble Sort") {
-                    BubbleSortVisualizer()
+                    BubbleSortVisualizer(barGraphViewModel = barGraphViewModel)
                 }
 
                 composable("Selection Sort") {
-                    SelectionSortVisualizer()
+                    SelectionSortVisualizer(barGraphViewModel = barGraphViewModel)
                 }
 
 
                 composable("Insertion Sort") {
                     //val barGraphViewModel = BarGraphViewModel()
                     //TestingBarGraph(barGraphViewModel = barGraphViewModel)
-
+                    InsertionSortVisualizer(barGraphViewModel = barGraphViewModel)
                 }
 
                 composable("Quick Sort") {
