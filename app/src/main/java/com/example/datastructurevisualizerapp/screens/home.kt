@@ -27,7 +27,7 @@ fun homeScreen(navController: NavController, user: String, email: String, passwo
     LazyVerticalGrid (
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp)
+        contentPadding = PaddingValues(8.dp),
     ) {
         items(dataStructuresCollection.size) { index ->
             dataStructureBox(

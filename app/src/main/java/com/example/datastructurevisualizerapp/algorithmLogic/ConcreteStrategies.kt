@@ -122,3 +122,37 @@ class SelectionSortStrategy(): SortingStrategy {
         }
     }
 }
+
+
+/*
+class MergeSortStrategy(): SortingStrategy {
+/*
+    override suspend fun sort(normalizedList: MutableList<NormalizedBar>): MutableList<NormalizedBar> {
+        if (normalizedList.size <= 1) return normalizedList
+
+        val mid = normalizedList.size / 2
+        val left = normalizedList.subList(0, mid - 1)
+        val right = normalizedList.subList(mid, normalizedList.size -1)
+
+        return merge(sort(left), sort(right))
+    }
+
+    private fun merge(left: MutableList<NormalizedBar>, right: MutableList<NormalizedBar>): MutableList<NormalizedBar> {
+        var i = 0
+        var j = 0
+        val merged = List<Float>(left.size + right.size) {
+            it.toFloat()
+        }
+
+        for (k in 0 until merged.size) {
+            when {
+                i >= left.size -> merged[k] = right[j++]
+                j >= right.size -> merged[k] = left[i++]
+                left[i].normalizedHeight <= right[j].normalizedHeight -> merged[k] = left[i++]
+                else -> merged[k] = right[j++]
+            }
+        }
+
+        return merged
+    }*/
+}*/
