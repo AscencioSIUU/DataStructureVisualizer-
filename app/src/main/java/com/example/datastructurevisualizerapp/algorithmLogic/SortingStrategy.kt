@@ -1,6 +1,6 @@
 package com.example.datastructurevisualizerapp.algorithmLogic
 
-import com.example.datastructurevisualizerapp.data.data_source.NormalizedBar
+import com.example.datastructurevisualizerapp.data.NormalizedBar
 
 
 interface SortingStrategy{

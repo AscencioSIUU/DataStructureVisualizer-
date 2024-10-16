@@ -26,7 +26,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.datastructurevisualizerapp.views.BarGraphViewModel
 import com.example.datastructurevisualizerapp.screens.CreateAccountScreen
 import com.example.datastructurevisualizerapp.screens.LoginScreen
 import com.example.datastructurevisualizerapp.screens.NavigationBar
@@ -48,6 +47,7 @@ import com.example.datastructurevisualizerapp.views.QuickSortVisualizer
 import com.example.datastructurevisualizerapp.views.SelectionSortVisualizer
 import com.example.datastructurevisualizerapp.data.CoinRepository
 import com.example.datastructurevisualizerapp.domain.models.Coin
+import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -162,8 +162,8 @@ fun MyDataStructureVisualizerApp() {
 
 
                 composable("Insertion Sort") {
-                    val barGraphViewModel = BarGraphViewModel()
-                    TestingBarGraph(barGraphViewModel = barGraphViewModel)
+                    //val barGraphViewModel = BarGraphViewModel()
+                    //TestingBarGraph(barGraphViewModel = barGraphViewModel)
 
                 }
 
