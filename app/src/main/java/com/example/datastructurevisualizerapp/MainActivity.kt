@@ -114,6 +114,9 @@ fun MyDataStructureVisualizerApp() {
         ) {
 
             NavHost( navController = navController, startDestination = "login") {
+
+                var valuesList = listOf(23, 12, 45, 56, 86, 34, 56, 45, 34, 23, 12, 45, 67, 78, 76, 54, 67, 80, 90, 102, 230)
+
                 composable("login") {
                     LoginScreen(navController) { name, email, password ->
                         userName = name
@@ -172,8 +175,13 @@ fun MyDataStructureVisualizerApp() {
                 }
 
                 composable("Stacks") {
-                    val stackViewModel: StackViewModel = viewModel()
-                    StackVisualizer(viewModel = stackViewModel)
+
+                    // Inicializar el ViewModel pasando valuesList
+                    val viewModel = remember { StackViewModel(valuesList) }
+
+                    // Llamar al visualizador del stack
+                    StackVisualizer(viewModel)
+
                 }
 
                 composable("Queues") {
@@ -181,7 +189,7 @@ fun MyDataStructureVisualizerApp() {
                 }
 
                 composable("Binary Trees") {
-                    BinaryTreesVisualizer()  // Llama a la función que maneja el árbol binario
+                    BinaryTreesVisualizer(valuesList)  // Llama a la función que maneja el árbol binario
                 }
 
 

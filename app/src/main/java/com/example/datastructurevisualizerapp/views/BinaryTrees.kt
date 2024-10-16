@@ -20,9 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 
 @Composable
-fun BinaryTreesVisualizer() {
-    // Predefinido array de valores que se agregarán uno por uno
-    val predefinedValues = listOf(23, 12, 45, 56, 86, 34, 56, 45, 34, 23, 12, 45, 67, 78, 76, 54, 67, 80, 90, 102, 230)
+fun BinaryTreesVisualizer(valuesList: List<Int>) {
 
     // Árbol binario actual
     var currentTree by remember { mutableStateOf<TreeNode?>(null) }
@@ -52,8 +50,8 @@ fun BinaryTreesVisualizer() {
         ) {
             Button(
                 onClick = {
-                    if (index < predefinedValues.size) {
-                        val newValue = predefinedValues[index]
+                    if (index < valuesList.size) {
+                        val newValue = valuesList[index]
                         currentTree = insert(currentTree, newValue)  // Inserta el nuevo valor al árbol
                         index++  // Avanza el índice al siguiente valor
                         // Actualiza la lista de valores en el árbol
