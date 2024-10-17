@@ -1,8 +1,11 @@
 package com.example.datastructurevisualizerapp.views
 
 import androidx.compose.runtime.Composable
+import com.example.datastructurevisualizerapp.algorithmLogic.SortingEnum
+import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 
 @Composable
-fun QuickSortVisualizer(){
-
+fun QuickSortVisualizer(barGraphViewModel: BarGraphViewModel){
+    barGraphViewModel.resetData()
+    AlgorithmScreen(barGraphViewModel = barGraphViewModel, sortingEnum = SortingEnum.QUICK)
 }

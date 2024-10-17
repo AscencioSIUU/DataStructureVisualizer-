@@ -2,6 +2,7 @@ package com.example.datastructurevisualizerapp.algorithmLogic
 
 import com.example.datastructurevisualizerapp.data.NormalizedBar
 import kotlinx.coroutines.delay
+import kotlin.math.min
 
 val delayTime = 15L
 
@@ -123,36 +124,182 @@ class SelectionSortStrategy(): SortingStrategy {
     }
 }
 
-
-/*
-class MergeSortStrategy(): SortingStrategy {
-/*
-    override suspend fun sort(normalizedList: MutableList<NormalizedBar>): MutableList<NormalizedBar> {
-        if (normalizedList.size <= 1) return normalizedList
-
-        val mid = normalizedList.size / 2
-        val left = normalizedList.subList(0, mid - 1)
-        val right = normalizedList.subList(mid, normalizedList.size -1)
-
-        return merge(sort(left), sort(right))
+class MergeSortBottomUpStrategy: SortingStrategy {
+    private lateinit var aux: MutableList<NormalizedBar>
+    override suspend  fun sort(normalizedList: MutableList<NormalizedBar>) {
+        aux = normalizedList.toMutableList()
+        mergeSort(normalizedList, 0, normalizedList.size - 1)
     }
 
-    private fun merge(left: MutableList<NormalizedBar>, right: MutableList<NormalizedBar>): MutableList<NormalizedBar> {
-        var i = 0
-        var j = 0
-        val merged = List<Float>(left.size + right.size) {
-            it.toFloat()
+    private suspend fun mergeSort(normalizedList: MutableList<NormalizedBar>, left: Int, right: Int) {
+        var mergingSize = 1
+        while (mergingSize < normalizedList.size) {
+            var currentLeft = 0
+            while (currentLeft < normalizedList.size - mergingSize) {
+                val currentRight = min(
+                    currentLeft + 2 * mergingSize - 1,
+                    normalizedList.size - 1
+                )
+                val currentMid = currentLeft + mergingSize - 1
+                // O(2*mergingSize)
+                merge(normalizedList, currentLeft, currentMid, currentRight)
+                currentLeft += 2 * mergingSize
+            }
+            mergingSize *= 2
+        }
+    }
+
+    private suspend fun merge(normalizedList: MutableList<NormalizedBar>, left: Int, mid: Int, right: Int) {
+
+        for(i in left..right){
+            aux[i] = normalizedList[i]
         }
 
-        for (k in 0 until merged.size) {
-            when {
-                i >= left.size -> merged[k] = right[j++]
-                j >= right.size -> merged[k] = left[i++]
-                left[i].normalizedHeight <= right[j].normalizedHeight -> merged[k] = left[i++]
-                else -> merged[k] = right[j++]
+        var currentBar: NormalizedBar
+        var switchBar: NormalizedBar
+
+        var leftIndex = left
+        var rightIndex = mid + 1
+
+        var index = left
+
+        while (leftIndex <= mid && rightIndex <= right) {
+            if(aux[leftIndex].normalizedHeight <= aux[rightIndex].normalizedHeight){
+                normalizedList[index++] = aux[leftIndex++]
+
+                if (index < normalizedList.size && leftIndex < aux.size) {
+                    normalizedList[index].selected = true
+                    aux[leftIndex].selected = true
+
+                    delay(50L)
+
+                    normalizedList[index].selected = false
+                    aux[leftIndex].selected = false
+                }
+            }else{
+                normalizedList[index++] = aux[rightIndex++]
+
+                if (index < normalizedList.size && rightIndex < aux.size) {
+                    normalizedList[index].selected = true
+                    aux[rightIndex].selected = true
+
+                    delay(50L)
+
+                    normalizedList[index].selected = false
+                    aux[rightIndex].selected = false
+                }
+            }
+
+        }
+        while (leftIndex <= mid) {
+            normalizedList[index++] = aux[leftIndex++]
+
+            if (index < normalizedList.size && leftIndex < aux.size) {
+                normalizedList[index].selected = true
+                aux[leftIndex].selected = true
+
+                delay(50L)
+
+                normalizedList[index].selected = false
+                aux[leftIndex].selected = false
+            }
+        }
+    }
+
+}
+
+// Kotlin program for implementation of QuickSort
+
+class QuickSortStragegy: SortingStrategy {
+    /* This function takes last element as pivot,
+    places the pivot element at its correct
+    position in sorted array, and places all
+    smaller (smaller than pivot) to left of
+    pivot and all greater elements to right
+    of pivot */
+    override suspend fun sort(normalizedList: MutableList<NormalizedBar>) {
+        quickSortIterative(normalizedList, 0, normalizedList.size - 1)
+    }
+
+    private suspend fun partition(normalizedList: MutableList<NormalizedBar>, low: Int, high: Int): Int {
+        val pivot = normalizedList[high].normalizedHeight
+
+        // index of smaller element
+        var i = low - 1
+        for (j in low until high) {
+            // If current element is smaller than or
+            // equal to pivot
+            if (normalizedList[j].normalizedHeight <= pivot) {
+                i++
+
+                normalizedList[i].selected = true
+                normalizedList[j].selected = true
+                delay(25L)
+
+                // swap arr[i] and arr[j]
+                val temp = normalizedList[i]
+                normalizedList[i] = normalizedList[j]
+                normalizedList[j] = temp
+                delay(25L)
+
+                normalizedList[i].selected = false
+                normalizedList[j].selected = false
             }
         }
 
-        return merged
-    }*/
-}*/
+        normalizedList[i + 1].selected = true
+        normalizedList[high].selected = true
+        delay(25L)
+
+        // swap arr[i+1] and arr[high] (or pivot)
+        val temp = normalizedList[i + 1]
+        normalizedList[i + 1] = normalizedList[high]
+        normalizedList[high] = temp
+        delay(25L)
+
+        normalizedList[i + 1].selected = false
+        normalizedList[high].selected = false
+
+        return i + 1
+    }
+
+    /* A[] --> Array to be sorted,
+   l  --> Starting index,
+   h  --> Ending index */
+    private suspend fun quickSortIterative(normalizedList: MutableList<NormalizedBar>, l: Int, h: Int) {
+        // Create an auxiliary stack
+        val stack = IntArray(h - l + 1)
+
+        // initialize top of stack
+        var top = -1
+
+        // push initial values of l and h to stack
+        stack[++top] = l
+        stack[++top] = h
+
+        // Keep popping from stack while is not empty
+        while (top >= 0) {
+            // Pop h and l
+            var high = stack[top--]
+            var low = stack[top--]
+
+            // Set pivot element at its correct position
+            // in sorted array
+            val p = partition(normalizedList, low, high)
+
+            // If there are elements on left side of pivot,
+            // then push left side to stack
+            if (p - 1 > low) {
+                stack[++top] = low
+                stack[++top] = p - 1
+            }
+
+            // If there are elements on right side of pivot,
+            // then push right side to stack
+            if (p + 1 < high) {
+                stack[++top] = p + 1
+                stack[++top] = high
+            }
+        }
+    }
+}

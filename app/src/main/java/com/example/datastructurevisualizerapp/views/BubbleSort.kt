@@ -9,5 +9,6 @@ import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 
 @Composable
 fun BubbleSortVisualizer(barGraphViewModel: BarGraphViewModel){
+    barGraphViewModel.resetData()
     AlgorithmScreen(barGraphViewModel = barGraphViewModel, sortingEnum = SortingEnum.BUBBLE, modifier = Modifier.padding(100.dp))
 }

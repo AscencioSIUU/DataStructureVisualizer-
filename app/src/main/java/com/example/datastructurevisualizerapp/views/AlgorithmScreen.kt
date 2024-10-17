@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
@@ -250,6 +251,11 @@ fun BarGraph2(
                         (size.width - borderWidth.toPx() - verticalLabelWidth.toPx()) / normalizedBars.size
                     val barMaxHeight =
                         (size.height - upperGap.toPx() - borderWidth.toPx() - horizontalLabelHeight.toPx())
+                    val gradient = Brush.radialGradient(
+                        listOf(selectedColor.copy(.9f), selectedColor, selectedColor.copy(.9f)),
+                        center = Offset(300f,300f),
+                        radius = 500f
+                    )
 
                     onDrawBehind {
 
@@ -259,6 +265,15 @@ fun BarGraph2(
                                 size.height - (borderWidth.toPx() / 2 + horizontalLabelHeight.toPx())
                             )
                             drawRect(
+                                gradient,
+                                topLeft = offset,
+                                size = Size(
+                                    width = barWidth,
+                                    height = -normalizedBars[i].normalizedHeight * barMaxHeight
+                                ),
+                                style = Stroke(width = 2.dp.toPx())
+                            )
+                            drawRect(
                                 color = if (normalizedBars[i].selected) selectedColor else defultColor,
                                 topLeft = offset,
                                 size = Size(
@@ -266,6 +281,8 @@ fun BarGraph2(
                                     height = -normalizedBars[i].normalizedHeight * barMaxHeight
                                 )
                             )
+
+
                             /*
                             drawText(
                                 brush = SolidColor(textColor),

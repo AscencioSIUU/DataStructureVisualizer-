@@ -153,7 +153,7 @@ fun MyDataStructureVisualizerApp() {
 
                 //navegacion de todas las pantallas
                 composable("Merge Sort") {
-                    MergeSortVisualizer()
+                    MergeSortVisualizer(barGraphViewModel = barGraphViewModel)
                 }
 
                 composable("Bubble Sort") {
@@ -172,7 +172,7 @@ fun MyDataStructureVisualizerApp() {
                 }
 
                 composable("Quick Sort") {
-                    QuickSortVisualizer()
+                    QuickSortVisualizer(barGraphViewModel = barGraphViewModel)
                 }
 
                 composable("Stacks") {

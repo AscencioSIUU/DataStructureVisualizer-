@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.datastructurevisualizerapp.algorithmLogic.BubbleSortStrategy
 import com.example.datastructurevisualizerapp.algorithmLogic.InsertionSortStrategy
+import com.example.datastructurevisualizerapp.algorithmLogic.MergeSortBottomUpStrategy
+import com.example.datastructurevisualizerapp.algorithmLogic.QuickSortStragegy
 import com.example.datastructurevisualizerapp.algorithmLogic.SelectionSortStrategy
 import com.example.datastructurevisualizerapp.algorithmLogic.SortingContext
 import com.example.datastructurevisualizerapp.algorithmLogic.SortingEnum
@@ -25,6 +27,8 @@ class BarGraphViewModel(normalizedBar: List<NormalizedBar>, scaleMarks: List<Flo
             SortingEnum.BUBBLE -> sortingContext.setSortingStrategy(BubbleSortStrategy())
             SortingEnum.INSERTION -> sortingContext.setSortingStrategy(InsertionSortStrategy())
             SortingEnum.SELECTION -> sortingContext.setSortingStrategy(SelectionSortStrategy())
+            SortingEnum.MERGE -> sortingContext.setSortingStrategy(MergeSortBottomUpStrategy())
+            SortingEnum.QUICK -> sortingContext.setSortingStrategy(QuickSortStragegy())
         }
     }
 
