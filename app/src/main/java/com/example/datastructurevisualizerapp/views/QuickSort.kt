@@ -6,6 +6,5 @@ import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 
 @Composable
 fun QuickSortVisualizer(barGraphViewModel: BarGraphViewModel){
-    barGraphViewModel.resetData()
     AlgorithmScreen(barGraphViewModel = barGraphViewModel, sortingEnum = SortingEnum.QUICK)
 }

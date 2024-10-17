@@ -229,7 +229,6 @@ fun BarGraph2(
                             brush = SolidColor(textColor),
                             textLayoutResult =  textMeasurer.measure(
                                 text = fl
-                                    .toInt()
                                     .toString(),
                                 style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)
                             ),
