@@ -16,6 +16,8 @@ import com.example.datastructurevisualizerapp.data.data_source.getBarData
 import kotlinx.coroutines.launch
 
 class BarGraphViewModel(normalizedBar: List<NormalizedBar>, scaleMarks: List<Float>): ViewModel(){
+
+
     private var _normalizedBars = normalizedBar.toMutableStateList()
     var scaleMarks = scaleMarks
     private val sortingContext = SortingContext()
@@ -40,12 +42,12 @@ class BarGraphViewModel(normalizedBar: List<NormalizedBar>, scaleMarks: List<Flo
 
     fun resetData(){
         viewModelScope.launch {
-            val barData = getBarData()
+            //val barData = getBarData()
 
-            _normalizedBars.clear()
-            _normalizedBars.addAll(barData.normalizedBars)
+            //_normalizedBars.clear()
+            //_normalizedBars.addAll(barData.normalizedBars)
 
-            scaleMarks = barData.scaleMarks
+            //scaleMarks = barData.scaleMarks
         }
 
     }

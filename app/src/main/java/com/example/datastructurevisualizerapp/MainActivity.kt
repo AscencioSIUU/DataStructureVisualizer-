@@ -1,5 +1,9 @@
 package com.example.datastructurevisualizerapp
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import kotlinx.coroutines.*
@@ -19,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -44,6 +49,7 @@ import com.example.datastructurevisualizerapp.data.CoinRepository
 import com.example.datastructurevisualizerapp.data.data_source.getBarData
 import com.example.datastructurevisualizerapp.domain.models.Coin
 import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
+import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
 import com.example.datastructurevisualizerapp.views.InsertionSortVisualizer
 import com.example.datastructurevisualizerapp.views.QueueViewModel
 
@@ -53,15 +59,57 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val isConnected = checkForInternet(this)
             DataStructureVisualizerAppTheme {
-                MyDataStructureVisualizerApp()
+                MyDataStructureVisualizerApp(isConnected)
             }
+        }
+    }
+
+    private fun checkForInternet(context: Context): Boolean {
+
+        // register activity with the connectivity manager service
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        // if the android version is equal to M
+        // or greater we need to use the
+        // NetworkCapabilities to check what type of
+        // network has the internet connection
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            // Returns a Network object corresponding to
+            // the currently active default data network.
+            val network = connectivityManager.activeNetwork ?: return false
+
+            // Representation of the capabilities of an active network.
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+            return when {
+                // Indicates this network uses a Wi-Fi transport,
+                // or WiFi has network connectivity
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+
+                // Indicates this network uses a Cellular transport. or
+                // Cellular has network connectivity
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+
+                // else return false
+                else -> false
+            }
+        } else {
+            // if the android version is below M
+            @Suppress("DEPRECATION") val networkInfo =
+                connectivityManager.activeNetworkInfo ?: return false
+            @Suppress("DEPRECATION")
+            return networkInfo.isConnected
         }
     }
 }
 
 @Composable
-fun MyDataStructureVisualizerApp() {
+fun MyDataStructureVisualizerApp(isConected: Boolean) {
+
+    val dbViewModel: DbViewModel = viewModel(factory = ViewModelProvider.Factory)
 
     var isLoggedIn by rememberSaveable  { mutableStateOf(false) }
     val navController = rememberNavController() //controlador de la navegación
@@ -70,11 +118,36 @@ fun MyDataStructureVisualizerApp() {
     var userPassword by rememberSaveable { mutableStateOf("") }
     val coinRepository = CoinRepository()
 
-    val barData = getBarData()
-    val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks =  barData.scaleMarks)
+
+
+
 
     var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
     var priceCoins by remember { mutableStateOf<List<Double>>(emptyList()) }
+
+
+    runBlocking {
+        //if(isConected){
+        withContext(Dispatchers.IO) {
+            try {
+                val fetchedCoins = coinRepository.getAllCoins()
+                val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
+                coins = fetchedCoinPrices
+                coins.forEach{coin ->
+                    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                }
+
+                dbViewModel.clearDb()
+                dbViewModel.insertAllCoins(fetchedCoinPrices)
+
+            } catch (e: Exception) {
+                Log.e("CoinDataError", "${e.message}")
+            }
+        }
+        //}
+
+    }
+
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -119,7 +192,8 @@ fun MyDataStructureVisualizerApp() {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
+            val barData = dbViewModel.getCoinDataBar(25)
+            val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
             NavHost( navController = navController, startDestination = "login") {
 
 
@@ -214,5 +288,7 @@ fun MyDataStructureVisualizerApp() {
             }
         }
     }
+
+
 }
 
