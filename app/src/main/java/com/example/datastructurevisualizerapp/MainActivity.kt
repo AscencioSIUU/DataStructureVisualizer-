@@ -74,6 +74,7 @@ fun MyDataStructureVisualizerApp() {
     val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks =  barData.scaleMarks)
 
     var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
+    var priceCoins by remember { mutableStateOf<List<Double>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -81,6 +82,11 @@ fun MyDataStructureVisualizerApp() {
                 val fetchedCoins = coinRepository.getAllCoins()
                 val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
                 coins = fetchedCoinPrices
+                val pricesList = fetchedCoinPrices.mapNotNull { it.price }
+                priceCoins = pricesList
+                priceCoins.forEach { price ->
+                    Log.d("prices", "$price")
+                }
                 coins.forEach{coin ->
                     Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
                 }
