@@ -1,9 +1,7 @@
 package com.example.datastructurevisualizerapp.views
 
-import android.graphics.Color.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -11,10 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 // ViewModel para manejar el Queue
 class QueueViewModel(private val valuesList: List<Int>) : ViewModel() {
@@ -93,32 +95,33 @@ fun QueuesVisualizer(viewModel: QueueViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyRow {
-            item {
-                // Dibuja la cola usando Canvas
-                QueueCanvas(viewModel.queue, viewModel.peekedIndex)
-            }
-        }
+        // Dibuja la cola usando Canvas
+        QueueCanvas(viewModel.queue, viewModel.peekedIndex)
     }
 }
 
 @Composable
 fun QueueCanvas(queue: List<Int>, peekedIndex: Int?) {
     if (queue.isNotEmpty()) {
-        // Calcula el ancho del canvas basado en la cantidad de elementos en la cola
-        val canvasWidth = queue.size * 150f + 100f
+        // Definimos el tamaño del Canvas, ajustando para que haya varias filas
+        val nodeSpacing = 150f  // Espaciado horizontal entre los nodos
+        val rowHeight = 150f    // Altura de cada fila
+        val canvasWidth = 600f  // Ancho máximo del canvas antes de saltar a la siguiente fila
+
+        // Calculamos el número de filas basado en el tamaño de la cola
+        val numRows = (queue.size * nodeSpacing / canvasWidth).toInt() + 1
+        val canvasHeight = numRows * rowHeight + 100f
 
         Box(
             modifier = Modifier
                 .width(canvasWidth.dp)
-                .height(200.dp)
+                .height(canvasHeight.dp)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                // Dibuja los elementos de la cola como círculos conectados por líneas
-                val nodeSpacing = 150f  // Espaciado horizontal entre los nodos
                 var xPosition = 100f  // Posición inicial en el eje X
+                var yPosition = 100f  // Posición inicial en el eje Y
 
                 queue.forEachIndexed { index, value ->
                     // Cambiar el color del elemento si está peekeado
@@ -128,7 +131,7 @@ fun QueueCanvas(queue: List<Int>, peekedIndex: Int?) {
                     drawCircle(
                         color = color,
                         radius = 40f,
-                        center = Offset(xPosition, size.height / 2),
+                        center = Offset(xPosition, yPosition),
                         style = Stroke(width = 4f)
                     )
 
@@ -136,25 +139,27 @@ fun QueueCanvas(queue: List<Int>, peekedIndex: Int?) {
                     drawContext.canvas.nativeCanvas.drawText(
                         value.toString(),
                         xPosition - 20f,
-                        size.height / 2 + 15f,
+                        yPosition + 15f,
                         android.graphics.Paint().apply {
                             textSize = 40f
                             color = Color.Black
                         }
                     )
 
-                    // Dibuja la línea que conecta al siguiente nodo
+                    // Dibuja la línea con flecha que conecta al siguiente nodo
                     if (index < queue.size - 1) {
-                        drawLine(
-                            color = Color.Black,
-                            start = Offset(xPosition + 40f, size.height / 2),
-                            end = Offset(xPosition + nodeSpacing - 40f, size.height / 2),
-                            strokeWidth = 4f
-                        )
-                    }
+                        val nextXPosition = if (xPosition + nodeSpacing > canvasWidth) 100f else xPosition + nodeSpacing
+                        val nextYPosition = if (xPosition + nodeSpacing > canvasWidth) yPosition + rowHeight else yPosition
 
-                    // Incrementa la posición X para el siguiente nodo
-                    xPosition += nodeSpacing
+                        drawArrow(
+                            start = Offset(xPosition + 40f, yPosition),
+                            end = Offset(nextXPosition - 40f, nextYPosition)
+                        )
+
+                        // Actualizamos las posiciones para el próximo nodo
+                        xPosition = nextXPosition
+                        yPosition = nextYPosition
+                    }
                 }
             }
         }
@@ -167,4 +172,39 @@ fun QueueCanvas(queue: List<Int>, peekedIndex: Int?) {
             Text("La cola está vacía. Agrega un valor.")
         }
     }
+}
+
+// Función para dibujar una línea con flecha entre dos puntos
+fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrow(start: Offset, end: Offset) {
+    // Dibuja la línea
+    drawLine(
+        color = Color.Black,
+        start = start,
+        end = end,
+        strokeWidth = 4f
+    )
+
+    // Calculamos el ángulo de la flecha
+    val arrowAngle = atan2(end.y - start.y, end.x - start.x)
+    val arrowLength = 20f
+    val arrowWidth = 10f
+
+    // Puntos para las líneas de la flecha
+    val arrowPoint1 = Offset(
+        end.x - arrowLength * cos(arrowAngle - Math.PI.toFloat() / 6f),
+        end.y - arrowLength * sin(arrowAngle - Math.PI.toFloat() / 6f)
+    )
+    val arrowPoint2 = Offset(
+        end.x - arrowLength * cos(arrowAngle + Math.PI.toFloat() / 6f),
+        end.y - arrowLength * sin(arrowAngle + Math.PI.toFloat() / 6f)
+    )
+
+    // Dibuja la flecha (dos líneas convergentes)
+    val arrowPath = Path().apply {
+        moveTo(end.x, end.y)
+        lineTo(arrowPoint1.x, arrowPoint1.y)
+        moveTo(end.x, end.y)
+        lineTo(arrowPoint2.x, arrowPoint2.y)
+    }
+    drawPath(path = arrowPath, color = Color.Black, style = Stroke(width = 4f))
 }
