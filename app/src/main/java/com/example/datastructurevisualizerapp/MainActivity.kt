@@ -45,6 +45,7 @@ import com.example.datastructurevisualizerapp.data.data_source.getBarData
 import com.example.datastructurevisualizerapp.domain.models.Coin
 import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 import com.example.datastructurevisualizerapp.views.InsertionSortVisualizer
+import com.example.datastructurevisualizerapp.views.QueueViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -178,15 +179,18 @@ fun MyDataStructureVisualizerApp() {
                 composable("Stacks") {
 
                     // Inicializar el ViewModel pasando valuesList
-                    val viewModel = remember { StackViewModel(valuesList) }
+                    val viewModelStack = remember { StackViewModel(valuesList) }
 
                     // Llamar al visualizador del stack
-                    StackVisualizer(viewModel)
+                    StackVisualizer(viewModelStack)
 
                 }
 
                 composable("Queues") {
-                    QueuesVisualizer()
+
+                    val viewModelQueue = remember { QueueViewModel(valuesList) }
+
+                    QueuesVisualizer(viewModelQueue)
                 }
 
                 composable("Binary Trees") {
