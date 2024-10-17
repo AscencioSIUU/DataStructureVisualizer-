@@ -24,18 +24,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
+
 
 @Composable
 fun LoginScreen(
     viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavController,
     onLogin: (String, String, String) -> Unit
-) {    // Variables para almacenar el texto de entrada
-    val name = remember { mutableStateOf(TextFieldValue("")) }
-    val password = remember { mutableStateOf(TextFieldValue("")) }
+) {
     val email = remember { mutableStateOf(TextFieldValue("")) }
+    val password = remember { mutableStateOf(TextFieldValue("")) }
+    val errorMessage = remember { mutableStateOf("") } // Para mostrar mensajes de error
 
     Column(
         modifier = Modifier
@@ -44,6 +46,15 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Mostrar mensaje de error si existe
+        if (errorMessage.value.isNotEmpty()) {
+            Text(
+                text = errorMessage.value,
+                color = Color.Red,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+
         // Título
         Text(
             text = "Iniciar Sesión",
@@ -52,17 +63,7 @@ fun LoginScreen(
             modifier = Modifier.padding(bottom = 32.dp),
             color = Color(0xFF1A2A3A)
         )
-/*
-        // Campo de texto para el nombre
-        OutlinedTextField(
-            value = name.value,
-            onValueChange = { name.value = it },
-            label = { Text("Nombre") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        )
-*/
+
         // Campo de texto para el email
         OutlinedTextField(
             value = email.value,
@@ -80,28 +81,30 @@ fun LoginScreen(
             label = { Text("Password") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp)
+                .padding(bottom = 32.dp),
+            visualTransformation = PasswordVisualTransformation()
         )
 
-        // Botones
-
-
+        // Botón para iniciar sesión
         Button(
             onClick = {
-                viewModel.signInWithEmailAndPassword(
-                    email.value.text,
-                    password.value.text,
-                    {
-                        onLogin(name.value.text, email.value.text, password.value.text)
-                        navController.navigate("home")
-                    },
-                    { exception ->
-                        // Manejar errores si el inicio de sesión falla
-                        println("Error: ${exception.message}")
-                    }
-                )
+                if (email.value.text.isEmpty() || password.value.text.isEmpty()) {
+                    errorMessage.value = "Por favor, llena todos los campos"
+                } else {
+                    viewModel.signInWithEmailAndPassword(
+                        email.value.text,
+                        password.value.text,
+                        {
+                            onLogin(email.value.text, password.value.text, password.value.text)
+                            navController.navigate("home")
+                        },
+                        { exception ->
+                            errorMessage.value = "Error: ${exception.message}"
+                        }
+                    )
+                }
             },
-            enabled =  email.value.text.isNotEmpty() && password.value.text.isNotEmpty(),
+            enabled = email.value.text.isNotEmpty() && password.value.text.isNotEmpty(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -130,6 +133,5 @@ fun LoginScreen(
                 }
             )
         }
-
     }
 }

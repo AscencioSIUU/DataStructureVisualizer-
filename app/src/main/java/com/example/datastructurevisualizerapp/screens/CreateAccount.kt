@@ -26,13 +26,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.google.firebase.auth.FirebaseAuth
+
 @Composable
 fun CreateAccountScreen(navController: NavController) {
     val firebaseAuth = remember { FirebaseAuth.getInstance() }
     val name = remember { mutableStateOf(TextFieldValue("")) }
     val email = remember { mutableStateOf(TextFieldValue("")) }
     val password = remember { mutableStateOf(TextFieldValue("")) }
+    val errorMessage = remember { mutableStateOf("") } // Para mostrar mensajes de error
+
+    // Función para validar si el email tiene un formato correcto
+    fun isEmailValid(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
 
     Column(
         modifier = Modifier
@@ -41,6 +49,15 @@ fun CreateAccountScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Mostrar el mensaje de error si existe
+        if (errorMessage.value.isNotEmpty()) {
+            Text(
+                text = errorMessage.value,
+                color = Color.Red,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+
         // Título
         Text(
             text = "Crear Cuenta",
@@ -77,22 +94,30 @@ fun CreateAccountScreen(navController: NavController) {
             label = { Text("Password") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp)
+                .padding(bottom = 32.dp),
+            visualTransformation = PasswordVisualTransformation()
         )
 
         // Botón para crear la cuenta
         Button(
             onClick = {
-                firebaseAuth.createUserWithEmailAndPassword(email.value.text, password.value.text)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            navController.navigate("login")
-                        } else {
-                            task.exception?.let {
-                                println("Error creando la cuenta: ${it.message}")
+                if (!isEmailValid(email.value.text)) {
+                    errorMessage.value = "El email no es válido"
+                } else if (password.value.text.length < 6) {
+                    errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
+                } else {
+                    errorMessage.value = "" // Limpiar el mensaje de error
+                    firebaseAuth.createUserWithEmailAndPassword(email.value.text, password.value.text)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                navController.navigate("login")
+                            } else {
+                                task.exception?.let {
+                                    errorMessage.value = "Error: ${it.message}"
+                                }
                             }
                         }
-                    }
+                }
             },
             enabled = name.value.text.isNotEmpty() && email.value.text.isNotEmpty() && password.value.text.isNotEmpty(),
             modifier = Modifier
