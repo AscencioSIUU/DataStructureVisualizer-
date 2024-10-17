@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Canvas
@@ -42,21 +43,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 
+
 @Composable
 fun userProfileScreen(
-    user: String,
-    email: String,
-    password: String,
     navController: NavController,
-    onLogout: () -> Unit  // Agregar función para manejar el cierre de sesión
-){
-    var userName by remember { mutableStateOf(user) }
-    var userEmail by remember { mutableStateOf(email) }
-    var userPassword by remember { mutableStateOf(password) }
+    onLogout: () -> Unit
+) {
+    // Inicializar FirebaseAuth
+    val firebaseAuth = FirebaseAuth.getInstance()
+    val currentUser = firebaseAuth.currentUser
+
+    // Variables para mostrar los datos del usuario
+    var userName by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf("") }
+    var userPassword by remember { mutableStateOf("") } // No se puede obtener la contraseña directamente desde Firebase por motivos de seguridad
+
+    // Cargar los datos del usuario si está autenticado
+    LaunchedEffect(currentUser) {
+        currentUser?.let { user ->
+            user.displayName?.let { userName = it }
+            userEmail = user.email ?: "Email no disponible"
+        }
+    }
 
     val ovalColor = colorResource(id = R.color.mainColor)
-
-    val isFormValid = userName.isNotBlank() && userEmail.isNotBlank() && userPassword.isNotBlank()
 
     Column(
         modifier = Modifier
@@ -66,73 +76,53 @@ fun userProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.user_profile),
+            text = "Perfil del Usuario",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = colorResource(R.color.mainColor),
-            modifier = Modifier
-                .padding(start = 8.dp)
+            modifier = Modifier.padding(start = 8.dp)
         )
         Spacer(modifier = Modifier.size(16.dp))
         Box(
-            modifier = Modifier
-                .size(140.dp)
-                .padding(8.dp),
+            modifier = Modifier.size(140.dp).padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
-            Canvas(modifier = Modifier.size(100.dp)){
-                drawOval(
-                    color = ovalColor,
-                    size = this.size
-                )
+            Canvas(modifier = Modifier.size(100.dp)) {
+                drawOval(color = ovalColor, size = this.size)
             }
             Icon(
                 Icons.Filled.AccountCircle,
                 contentDescription = null,
                 tint = colorResource(R.color.white),
-                modifier = Modifier.size(110.dp),
+                modifier = Modifier.size(110.dp)
             )
         }
         Spacer(modifier = Modifier.size(16.dp))
+
+        // Campo de texto con el nombre del usuario
         OutlinedTextField(
             value = userName,
             onValueChange = { /* No se puede editar */ },
-            label = { Text("Nombre") },
+            label = { Text("Nombre") }
         )
+
         Spacer(modifier = Modifier.size(16.dp))
+
+        // Campo de texto con el email del usuario
         OutlinedTextField(
             value = userEmail,
             onValueChange = { /* No se puede editar */ },
-            label = { Text("Email") },
+            label = { Text("Email") }
         )
-        Spacer(modifier = Modifier.size(16.dp))
-        OutlinedTextField(
-            value = userPassword,
-            onValueChange = { /* No se puede editar */ },
-            visualTransformation = PasswordVisualTransformation(),
-            label = { Text("Contraseña") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-        )
-        Spacer(modifier = Modifier.size(32.dp))
-        FilledTonalButton(
-            onClick = { /*TODO: Guardar cambios si es necesario */ },
-            enabled = isFormValid,
-            colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = if (isFormValid) MaterialTheme.colorScheme.secondary else Color.Gray,
-                contentColor = MaterialTheme.colorScheme.onSecondary
-            )
-        ) {
-            Text("Guardar")
-        }
 
         Spacer(modifier = Modifier.size(32.dp))
 
-        // Botón de cerrar sesión
+        // Botón para cerrar sesión
         Button(
             onClick = {
                 FirebaseAuth.getInstance().signOut()  // Cerrar sesión en Firebase
                 onLogout()  // Cambiar isLoggedIn a false
-                navController.navigate("login") {  // Navegar a la pantalla de login
+                navController.navigate("login") {
                     popUpTo("profile") { inclusive = true }  // Limpiar la pila de navegación
                 }
             },
@@ -149,3 +139,4 @@ fun userProfileScreen(
         }
     }
 }
+

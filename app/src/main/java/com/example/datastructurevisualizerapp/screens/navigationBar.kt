@@ -98,7 +98,7 @@ fun NavigationBar(
             IconButton(
                 onClick = {
                     selectedItem = 1
-                    navController.navigate("home/$user/$email/$password")
+                    navController.navigate("home")
                 }
             ) {
                 Icon(
@@ -124,8 +124,7 @@ fun NavigationBar(
             IconButton(
                 onClick = {
                     selectedItem = 2
-                    navController.navigate("profile/$user/$email/$password")
-                }
+                    navController.navigate("profile")                }
             ){
                 Icon(
                     Icons.Filled.AccountCircle,

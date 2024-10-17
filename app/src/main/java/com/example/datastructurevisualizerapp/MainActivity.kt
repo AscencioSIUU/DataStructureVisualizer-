@@ -216,33 +216,22 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                     CreateAccountScreen(navController)
                 }
 
-                composable("home/{user}/{email}/{password}") { backStackEntry ->
-                    val user = backStackEntry.arguments?.getString("user")
-                    val email = backStackEntry.arguments?.getString("email")
-                    val password = backStackEntry.arguments?.getString("password")
-                    barGraphViewModel.resetData()
-                    homeScreen(navController,user = user.orEmpty(), email = email.orEmpty(), password = password.orEmpty())
+                composable("home") {
+                    homeScreen(navController = navController)
                 }
 
                 composable("writeData") {
                     WriteData(navController)
                 }
-                composable("profile/{user}/{email}/{password}") { backStackEntry ->
-
-                    val user = backStackEntry.arguments?.getString("user")
-                    val email = backStackEntry.arguments?.getString("email")
-                    val password = backStackEntry.arguments?.getString("password")
-
+                composable("profile") {
                     userProfileScreen(
-                        user = user.orEmpty(),
-                        email = email.orEmpty(),
-                        password = password.orEmpty(),
                         navController = navController,
                         onLogout = {
-                            isLoggedIn = false  // Actualizar estado de login
+                            isLoggedIn = false  // Actualizar estado de login cuando se cierra sesión
                         }
                     )
                 }
+
 
                 //navegacion de todas las pantallas
                 composable("Merge Sort") {
