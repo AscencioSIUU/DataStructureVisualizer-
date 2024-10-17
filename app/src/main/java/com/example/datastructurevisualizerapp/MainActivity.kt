@@ -194,19 +194,24 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
         ) {
             val barData = dbViewModel.getCoinDataBar(25)
             val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
-            NavHost( navController = navController, startDestination = "login") {
+            NavHost( navController = navController, startDestination = "createAccount") {
 
 
                 var valuesList = priceCoins
 
+
                 composable("login") {
-                    LoginScreen(navController) { name, email, password ->
+                    LoginScreen(
+                        viewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+                        navController = navController
+                    ) { name, email, password ->
                         userName = name
                         userEmail = email
                         userPassword = password
                         isLoggedIn = true
                     }
                 }
+
                 composable("createAccount"){
                     CreateAccountScreen(navController)
                 }

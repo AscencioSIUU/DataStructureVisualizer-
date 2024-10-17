@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp") version "1.9.20-1.0.14"
+
+    // Add the Google services Gradle plugin
+
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -91,4 +96,20 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Import the Firebase BoM
+
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+
+
+    // When using the BoM, don't specify versions in Firebase dependencies
+
+    implementation("com.google.firebase:firebase-analytics")
+
+    implementation("com.google.firebase:firebase-core:21.1.1")
+    implementation("com.google.firebase:firebase-database:21.0.0")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+
 }
