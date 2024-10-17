@@ -92,10 +92,12 @@ fun LoginScreen(
                     email.value.text,
                     password.value.text,
                     {
+                        onLogin(name.value.text, email.value.text, password.value.text)
                         navController.navigate("home/${name.value.text}/${email.value.text}/${password.value.text}")
                     },
                     { exception ->
                         // Manejar errores si el inicio de sesión falla
+                        println("Error: ${exception.message}")
                     }
                 )
             },
