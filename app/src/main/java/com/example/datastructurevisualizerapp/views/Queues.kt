@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import kotlin.math.atan2
@@ -63,7 +64,7 @@ fun QueuesVisualizer(viewModel: QueueViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(12.dp)
     ) {
 
         // Botones para las operaciones
@@ -102,11 +103,15 @@ fun QueuesVisualizer(viewModel: QueueViewModel) {
 
 @Composable
 fun QueueCanvas(queue: List<Int>, peekedIndex: Int?) {
+    // Obtenemos el ancho del dispositivo
+    val configuration = LocalConfiguration.current
+    val screenWidthPx = configuration.screenWidthDp * configuration.densityDpi / 160  // Convertimos dp a px
+
     if (queue.isNotEmpty()) {
         // Definimos el tamaño del Canvas, ajustando para que haya varias filas
         val nodeSpacing = 150f  // Espaciado horizontal entre los nodos
         val rowHeight = 150f    // Altura de cada fila
-        val canvasWidth = 600f  // Ancho máximo del canvas antes de saltar a la siguiente fila
+        val canvasWidth = screenWidthPx.toFloat()-225  // Usamos el ancho completo del dispositivo
 
         // Calculamos el número de filas basado en el tamaño de la cola
         val numRows = (queue.size * nodeSpacing / canvasWidth).toInt() + 1
@@ -114,7 +119,7 @@ fun QueueCanvas(queue: List<Int>, peekedIndex: Int?) {
 
         Box(
             modifier = Modifier
-                .width(canvasWidth.dp)
+                .fillMaxWidth()
                 .height(canvasHeight.dp)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
@@ -187,7 +192,6 @@ fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrow(start: Offset, en
     // Calculamos el ángulo de la flecha
     val arrowAngle = atan2(end.y - start.y, end.x - start.x)
     val arrowLength = 20f
-    val arrowWidth = 10f
 
     // Puntos para las líneas de la flecha
     val arrowPoint1 = Offset(
