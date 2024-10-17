@@ -128,22 +128,22 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
 
     runBlocking {
         //if(isConected){
-        withContext(Dispatchers.IO) {
-            try {
-                val fetchedCoins = coinRepository.getAllCoins()
-                val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
-                coins = fetchedCoinPrices
-                coins.forEach{coin ->
-                    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+            withContext(Dispatchers.IO) {
+                try {
+                    val fetchedCoins = coinRepository.getAllCoins()
+                    val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
+                    coins = fetchedCoinPrices
+                    coins.forEach{coin ->
+                        Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                    }
+
+                    dbViewModel.clearDb()
+                    dbViewModel.insertAllCoins(fetchedCoinPrices)
+
+                } catch (e: Exception) {
+                    Log.e("CoinDataError", "${e.message}")
                 }
-
-                dbViewModel.clearDb()
-                dbViewModel.insertAllCoins(fetchedCoinPrices)
-
-            } catch (e: Exception) {
-                Log.e("CoinDataError", "${e.message}")
             }
-        }
         //}
 
     }
@@ -215,7 +215,7 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                     val user = backStackEntry.arguments?.getString("user")
                     val email = backStackEntry.arguments?.getString("email")
                     val password = backStackEntry.arguments?.getString("password")
-
+                    barGraphViewModel.resetData()
                     homeScreen(navController,user = user.orEmpty(), email = email.orEmpty(), password = password.orEmpty())
                 }
 
