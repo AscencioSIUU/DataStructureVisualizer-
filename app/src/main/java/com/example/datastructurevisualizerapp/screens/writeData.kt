@@ -18,6 +18,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +37,10 @@ import androidx.navigation.NavController
 
 @Composable
 fun WriteData(navController: NavController){
+    // Estado para almacenar el valor ingresado en el campo de texto
+    var textInput by remember { mutableStateOf("") }
+    var numberList by remember { mutableStateOf<List<Int>>(emptyList()) }
+
     Column (
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
@@ -57,16 +65,40 @@ fun WriteData(navController: NavController){
             textAlign = TextAlign.Center,
             color = Color(0xFF1A2A3A)
         )
-        //Ingreso de datos
+        // Ingreso de datos
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = textInput,
+            onValueChange = { textInput = it },
             label = { Text("Ingrese sus datos") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(20.dp))
-        // Titulo 2
+        // Botón para procesar los datos ingresados
+        Button(
+            onClick = {
+                // Procesar el texto ingresado y convertirlo a una lista de números
+                numberList = textInput.split(",").mapNotNull { it.trim().toIntOrNull() }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Text("Guardar datos", color = Color(0xFF1A2A3A))
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        // Mostrar la lista de números guardada
+        if (numberList.isNotEmpty()) {
+            Text(
+                text = "Datos guardados: ${numberList.joinToString(", ")}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color(0xFF1A2A3A)
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        // Titulo para la opción de subir archivo
         Text(
             text = "O suba su archivo .CSV:",
             fontSize = 24.sp,
@@ -75,15 +107,13 @@ fun WriteData(navController: NavController){
             color = Color(0xFF1A2A3A)
         )
         Button(
-            onClick = { /* Implementar logica */ },
+            onClick = { /* Implementar lógica de carga de archivo */ },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            contentPadding = PaddingValues(horizontal = 16.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Text("Seleccione un archivo", color = Color(0xFF1A2A3A))
         }
     }
 }
-
