@@ -125,7 +125,7 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
     var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
 
     runBlocking {
-        //if(isConected){
+        if(isConected){
             withContext(Dispatchers.IO) {
                 try {
                     val fetchedCoins = coinRepository.getAllCoins()
@@ -142,7 +142,7 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                     Log.e("CoinDataError", "${e.message}")
                 }
             }
-        //}
+        }
 
     }
 
@@ -191,7 +191,7 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                     val user = backStackEntry.arguments?.getString("user")
                     val email = backStackEntry.arguments?.getString("email")
                     val password = backStackEntry.arguments?.getString("password")
-
+                    barGraphViewModel.resetData()
                     homeScreen(navController,user = user.orEmpty(), email = email.orEmpty(), password = password.orEmpty())
                 }
 

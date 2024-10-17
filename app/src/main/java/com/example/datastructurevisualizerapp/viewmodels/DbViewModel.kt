@@ -70,8 +70,13 @@ class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
 
     }
 
+    @Composable
     fun getCoinPrices(): List<Double>{
-        return allPrices.value.priceList.toList()
+        val myPrices = allPrices.collectAsState()
+
+        val prices: MutableList<Double> = myPrices.value.priceList.toMutableList()
+
+        return prices
     }
 
     companion object {

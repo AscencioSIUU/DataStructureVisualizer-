@@ -42,13 +42,12 @@ class BarGraphViewModel(normalizedBar: List<NormalizedBar>, scaleMarks: List<Flo
 
     fun resetData(){
         viewModelScope.launch {
-            //val barData = getBarData()
-
-            //_normalizedBars.clear()
-            //_normalizedBars.addAll(barData.normalizedBars)
-
-            //scaleMarks = barData.scaleMarks
+            val shuffledList = _normalizedBars.shuffled()
+            _normalizedBars.clear()
+            _normalizedBars.addAll(shuffledList)
         }
+
+
 
     }
 

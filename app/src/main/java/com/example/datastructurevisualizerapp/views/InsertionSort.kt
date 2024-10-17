@@ -6,6 +6,5 @@ import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 
 @Composable
 fun InsertionSortVisualizer(barGraphViewModel: BarGraphViewModel){
-    barGraphViewModel.resetData()
     AlgorithmScreen(barGraphViewModel = barGraphViewModel, sortingEnum = SortingEnum.INSERTION)
 }
