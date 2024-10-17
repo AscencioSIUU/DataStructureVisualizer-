@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 
 // ViewModel para manejar el Stack
-class StackViewModel(private val valuesList: List<Int>) : ViewModel() {
-    private val _stack = mutableStateListOf<Int>()
-    val stack: List<Int> get() = _stack
+class StackViewModel(private val valuesList: List<Double>) : ViewModel() {
+    private val _stack = mutableStateListOf<Double>()
+    val stack: List<Double> get() = _stack
 
     private var currentIndex = 0  // Para iterar por los elementos de valuesList
 

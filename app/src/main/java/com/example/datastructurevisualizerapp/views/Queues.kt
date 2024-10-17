@@ -20,9 +20,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 // ViewModel para manejar el Queue
-class QueueViewModel(private val valuesList: List<Int>) : ViewModel() {
-    private val _queue = mutableStateListOf<Int>()
-    val queue: List<Int> get() = _queue
+class QueueViewModel(private val valuesList: List<Double>) : ViewModel() {
+    private val _queue = mutableStateListOf<Double>()
+    val queue: List<Double> get() = _queue
 
     private var currentIndex = 0  // Para iterar por los elementos de valuesList
     var peekedIndex by mutableStateOf<Int?>(null)
@@ -102,7 +102,7 @@ fun QueuesVisualizer(viewModel: QueueViewModel) {
 }
 
 @Composable
-fun QueueCanvas(queue: List<Int>, peekedIndex: Int?) {
+fun QueueCanvas(queue: List<Double>, peekedIndex: Int?) {
     // Obtenemos el ancho del dispositivo
     val configuration = LocalConfiguration.current
     val screenWidthPx = configuration.screenWidthDp * configuration.densityDpi / 160  // Convertimos dp a px

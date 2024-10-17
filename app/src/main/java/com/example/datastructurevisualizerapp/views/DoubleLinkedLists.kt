@@ -21,8 +21,8 @@ import androidx.compose.ui.graphics.Path
 
 
 @Composable
-fun DoubleLinkedListsVisualizer(initialList: List<Int>) {
-    val nodeList = remember { mutableStateListOf<Int>() }
+fun DoubleLinkedListsVisualizer(initialList: List<Double>) {
+    val nodeList = remember { mutableStateListOf<Double>() }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         // Botones para agregar y eliminar
@@ -64,7 +64,7 @@ fun DoubleLinkedListsVisualizer(initialList: List<Int>) {
 }
 
 @Composable
-fun NodeVisualizer(nodeList: List<Int>) {
+fun NodeVisualizer(nodeList: List<Double>) {
     // Obtenemos el ancho de la pantalla en píxeles
     val configuration = LocalConfiguration.current
     val screenWidthPx = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }
@@ -206,4 +206,3 @@ fun androidx.compose.ui.graphics.drawscope.DrawScope.drawDoubleArrow(start: Offs
     }
     drawPath(path = arrowPath, color = Color.Green, style = Stroke(width = 4f))
 }
-

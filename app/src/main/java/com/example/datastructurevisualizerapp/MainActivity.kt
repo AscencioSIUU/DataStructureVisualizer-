@@ -123,7 +123,7 @@ fun MyDataStructureVisualizerApp() {
             NavHost( navController = navController, startDestination = "login") {
 
 
-                var valuesList = listOf(23, 12, 45, 56, 86, 34, 56, 45, 34, 23, 12, 45, 67, 78, 76, 54, 67, 80, 90, 102, 230)
+                var valuesList = priceCoins
 
                 composable("login") {
                     LoginScreen(navController) { name, email, password ->

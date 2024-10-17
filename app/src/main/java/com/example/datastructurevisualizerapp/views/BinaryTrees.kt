@@ -20,14 +20,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 
 @Composable
-fun BinaryTreesVisualizer(valuesList: List<Int>) {
+fun BinaryTreesVisualizer(valuesList: List<Double>) {
 
     // Árbol binario actual
     var currentTree by remember { mutableStateOf<TreeNode?>(null) }
     var index by remember { mutableStateOf(0) }
 
     // Lista de valores actualmente en el árbol
-    var treeValues by remember { mutableStateOf<List<Int>>(emptyList()) }
+    var treeValues by remember { mutableStateOf<List<Double>>(emptyList()) }
 
     // Estados para scroll horizontal y vertical
     val scrollStateVertical = rememberScrollState()
@@ -35,7 +35,7 @@ fun BinaryTreesVisualizer(valuesList: List<Int>) {
 
     // Estado para el menú desplegable
     var expanded by remember { mutableStateOf(false) }
-    var selectedValueToDelete by remember { mutableStateOf<Int?>(null) }
+    var selectedValueToDelete by remember { mutableStateOf<Double?>(null) }
 
     // Interfaz para agregar y eliminar elementos del árbol
     Column(
@@ -158,7 +158,6 @@ fun BinaryTreeCanvas(treeNode: TreeNode?) {
     }
 }
 
-// Función para dibujar el árbol binario usando `Canvas`
 fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBinaryTree(
     treeNode: TreeNode?,
     x: Float,
@@ -196,7 +195,6 @@ fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBinaryTree(
                 end = Offset(x - childSpacing, y + verticalSpacing),
                 strokeWidth = 4f
             )
-            // Dibuja el subárbol izquierdo
             drawBinaryTree(
                 treeNode.left,
                 x = x - childSpacing,
@@ -215,7 +213,6 @@ fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBinaryTree(
                 end = Offset(x + childSpacing, y + verticalSpacing),
                 strokeWidth = 4f
             )
-            // Dibuja el subárbol derecho
             drawBinaryTree(
                 treeNode.right,
                 x = x + childSpacing,
@@ -228,21 +225,18 @@ fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBinaryTree(
     }
 }
 
-// Función para obtener la altura del árbol
 fun getTreeHeight(node: TreeNode?): Int {
     if (node == null) return 0
     return 1 + max(getTreeHeight(node.left), getTreeHeight(node.right))
 }
 
-// Función para obtener el ancho máximo del árbol
 fun getTreeWidth(node: TreeNode?): Int {
     if (node == null) return 0
     if (node.left == null && node.right == null) return 1
     return getTreeWidth(node.left) + getTreeWidth(node.right)
 }
 
-// Función para insertar valores en el árbol (árbol inmutable)
-fun insert(root: TreeNode?, value: Int): TreeNode {
+fun insert(root: TreeNode?, value: Double): TreeNode {
     if (root == null) {
         Log.d("BinaryTree", "Insertando nodo raíz: $value")
         return TreeNode(value)
@@ -256,8 +250,7 @@ fun insert(root: TreeNode?, value: Int): TreeNode {
     }
 }
 
-// Función para eliminar un valor del árbol (árbol inmutable)
-fun delete(root: TreeNode?, value: Int): TreeNode? {
+fun delete(root: TreeNode?, value: Double): TreeNode? {
     if (root == null) {
         return null
     }
@@ -269,15 +262,13 @@ fun delete(root: TreeNode?, value: Int): TreeNode? {
             root.copy(right = delete(root.right, value))
         }
         else -> { // value == root.value
-            // Nodo a eliminar encontrado
             if (root.left == null && root.right == null) {
-                null // Sin hijos
+                null
             } else if (root.left == null) {
-                root.right // Un hijo (derecha)
+                root.right
             } else if (root.right == null) {
-                root.left // Un hijo (izquierda)
+                root.left
             } else {
-                // Nodo con dos hijos: obtener el sucesor en inorden (el más pequeño del subárbol derecho)
                 val successorValue = findMinValue(root.right)
                 root.copy(
                     value = successorValue,
@@ -288,20 +279,17 @@ fun delete(root: TreeNode?, value: Int): TreeNode? {
     }
 }
 
-// Función para encontrar el valor mínimo en un árbol (utilizado en la eliminación)
-fun findMinValue(node: TreeNode?): Int {
+fun findMinValue(node: TreeNode?): Double {
     return node?.left?.let { findMinValue(it) } ?: node!!.value
 }
 
-// Función para obtener la lista de valores en el árbol (recorrido inorden)
-fun getTreeValues(node: TreeNode?): List<Int> {
+fun getTreeValues(node: TreeNode?): List<Double> {
     if (node == null) return emptyList()
     val leftValues = getTreeValues(node.left)
     val rightValues = getTreeValues(node.right)
     return leftValues + node.value + rightValues
 }
 
-// Función auxiliar para imprimir el árbol en los logs
 fun printTree(node: TreeNode?, prefix: String = "", isLeft: Boolean = true) {
     if (node != null) {
         Log.d("BinaryTree", "$prefix${if (isLeft) "├── " else "└── "}${node.value}")
@@ -310,9 +298,8 @@ fun printTree(node: TreeNode?, prefix: String = "", isLeft: Boolean = true) {
     }
 }
 
-// Estructura del nodo del árbol binario (inmutable)
 data class TreeNode(
-    val value: Int,
+    val value: Double,
     val left: TreeNode? = null,
     val right: TreeNode? = null
 )
