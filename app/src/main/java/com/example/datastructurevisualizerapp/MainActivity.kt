@@ -203,15 +203,10 @@ fun MyDataStructureVisualizerApp() {
                 }
 
                 composable("Double Linked Lists") {
-                    DoubleLinkedListsVisualizer()
+                    DoubleLinkedListsVisualizer(valuesList)
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun previewMyApp() {
-    MyDataStructureVisualizerApp()
-}
