@@ -143,11 +143,6 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                     fetchedManualCoinPrices.forEach{coinName ->
                         Log.d("CoinData", "Coin: ${coinName}")
                     }
-
-
-
-
-
                     dbViewModel.clearDb()
                     dbViewModel.insertAllCoins(fetchedCoinPrices)
 
