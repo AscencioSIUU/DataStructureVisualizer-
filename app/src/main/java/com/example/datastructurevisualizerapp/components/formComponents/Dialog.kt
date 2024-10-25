@@ -1,7 +1,5 @@
 package com.example.datastructurevisualizerapp.components.formComponents
 
-import android.media.Image
-import androidx.compose.foundation.content.MediaType.Companion.Image
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -13,9 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.datastructurevisualizerapp.R
 
 @Composable
 fun ShowInformationDialog(
