@@ -124,7 +124,7 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
 
     var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
     var priceCoins by remember { mutableStateOf<List<Double>>(emptyList()) }
-
+    val coinNames = listOf("bitcoin", "ethereum", "maker", "bittensor", "monero", "aave", "quant", "okb", "solana", "litecoin", "arweave" , "polkadot", "chainlink", "neo", "aptos", "uniswap", "helium", "celestia", "thorchain", "cosmos", "pendle", "filecoin", "sui", "apecoin")
 
     runBlocking {
         //if(isConected){
@@ -133,9 +133,20 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                     val fetchedCoins = coinRepository.getAllCoins()
                     val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
                     coins = fetchedCoinPrices
-                    coins.forEach{coin ->
-                        Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                    //coins.forEach{coin ->
+                    //    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                    //}
+                    //Log.d("ALL?", "${coins}")
+                    Log.d("SEPARTOOOOR", "------------------------------------------------------------------------------")
+
+                    val fetchedManualCoinPrices = coinRepository.getManualCoinPrices(coinNames)
+                    fetchedManualCoinPrices.forEach{coinName ->
+                        Log.d("CoinData", "Coin: ${coinName}")
                     }
+
+
+
+
 
                     dbViewModel.clearDb()
                     dbViewModel.insertAllCoins(fetchedCoinPrices)
@@ -145,7 +156,6 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                 }
             }
         //}
-
     }
 
 
@@ -157,11 +167,15 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                 coins = fetchedCoinPrices
                 val pricesList = fetchedCoinPrices.mapNotNull { it.price }
                 priceCoins = pricesList
-                priceCoins.forEach { price ->
-                    Log.d("prices", "$price")
-                }
-                coins.forEach{coin ->
-                    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                //priceCoins.forEach { price ->
+                //    Log.d("prices", "$price")
+                //}
+                //coins.forEach{coin ->
+                //    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                //}
+                val fetchedManualCoinPrices = coinRepository.getManualCoinPrices(coinNames)
+                fetchedManualCoinPrices.forEach{coinName ->
+                    Log.d("CoinData", "Coin: ${coinName}")
                 }
 
             } catch (e: Exception) {

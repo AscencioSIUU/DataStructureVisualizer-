@@ -4,6 +4,7 @@ import com.example.datastructurevisualizerapp.data.data_source.CoinGeckoApiServi
 import com.example.datastructurevisualizerapp.domain.models.Coin
 import org.json.JSONArray
 import org.json.JSONObject
+import android.util.Log
 
 class CoinRepository{
     private val apiService = CoinGeckoApiService()
@@ -26,6 +27,7 @@ class CoinRepository{
 
     suspend fun getCoinPrices(coins: List<Coin>): List<Coin>{
         val ids = coins.joinToString(",") { it.id }
+
         val jsonResponse = apiService.fetchCoinPrices(ids)
         if (jsonResponse != null) {
             val jsonObject = JSONObject(jsonResponse)
@@ -37,6 +39,24 @@ class CoinRepository{
             }
         }
         return coins
+    }
+
+    suspend fun getManualCoinPrices(coinNames: List<String>): List<Pair<String, Double>> {
+        val names = coinNames.joinToString(",")
+        val jsonResponse = apiService.fetchCoinPrices(names)
+        val result = mutableListOf<Pair<String, Double>>()
+
+        if (jsonResponse != null) {
+            val jsonObject = JSONObject(jsonResponse)
+            for (coinName in coinNames) {
+                if (jsonObject.has(coinName) && jsonObject.getJSONObject(coinName).has("usd")) {
+                    val coinData = jsonObject.getJSONObject(coinName)
+                    val price = coinData.getDouble("usd")
+                    result.add(Pair(coinName, price))  // Agrega el nombre y el precio a la lista
+                }
+            }
+        }
+        return result
     }
 
 }
