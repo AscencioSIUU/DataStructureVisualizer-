@@ -20,7 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 
 @Composable
-fun BinaryTreesVisualizer(valuesList: List<Double>) {
+fun BinaryTreesVisualizer(valuesList: List<Double>, onUseManualEntries: () -> List<Double>?) {
 
     // Árbol binario actual
     var currentTree by remember { mutableStateOf<TreeNode?>(null) }
@@ -64,6 +64,25 @@ fun BinaryTreesVisualizer(valuesList: List<Double>) {
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Text("Agregar")
+            }
+
+            // Botón para utilizar los datos ingresados manualmente
+            Button(
+                onClick = {
+                    val manualEntries = onUseManualEntries() // Llama la función para obtener los datos ingresados manualmente
+                    if (manualEntries != null && manualEntries.isNotEmpty()) {
+                        manualEntries.forEach { value ->
+                            currentTree = insert(currentTree, value)  // Inserta cada valor en el árbol
+                        }
+                        // Actualiza la lista de valores en el árbol
+                        treeValues = getTreeValues(currentTree)
+                        Log.d("BinaryTree", "Datos manuales agregados al árbol: $manualEntries")
+                        printTree(currentTree)
+                    }
+                },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Text("Utilizar los ingresados")
             }
 
             // Menú desplegable para seleccionar el valor a eliminar
@@ -136,6 +155,7 @@ fun BinaryTreesVisualizer(valuesList: List<Double>) {
         }
     }
 }
+
 
 @Composable
 fun BinaryTreeCanvas(treeNode: TreeNode?) {

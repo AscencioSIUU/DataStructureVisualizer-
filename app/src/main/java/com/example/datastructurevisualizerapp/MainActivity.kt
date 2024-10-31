@@ -270,7 +270,8 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
 
                     WriteData(
                         navController = navController,
-                        onCsvSelectClick = { activity?.startCsvFilePicker() }
+                        dbViewModel = dbViewModel,  // Pasa el ViewModel como parámetro
+                        onCsvSelectClick = { activity?.startCsvFilePicker() } // Usa LocalContext para llamar a la función de la actividad
                     )
                 }
 
@@ -327,9 +328,11 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                 }
 
                 composable("Binary Trees") {
-                    BinaryTreesVisualizer(valuesList)  // Llama a la función que maneja el árbol binario
+                    BinaryTreesVisualizer(
+                        valuesList = priceCoins,
+                        onUseManualEntries = { dbViewModel.storedNumbers.value.map { it.toDouble() } }
+                    )
                 }
-
 
                 composable("Heaps") {
                     HeapsVisualizer()

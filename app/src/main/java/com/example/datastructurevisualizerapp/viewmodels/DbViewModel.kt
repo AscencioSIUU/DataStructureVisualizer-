@@ -100,10 +100,14 @@ class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
         }
     }
 
+
     // Un MutableStateFlow para almacenar los números y observar cambios
     private val _storedNumbers = MutableStateFlow<List<Int>>(emptyList())
     val storedNumbers: StateFlow<List<Int>> = _storedNumbers
 
+    fun updateStoredNumbers(numbers: List<Int>) {
+        _storedNumbers.value = numbers
+    }
 }
 
 data class AllCoins(val coinList: List<Coin> = listOf())

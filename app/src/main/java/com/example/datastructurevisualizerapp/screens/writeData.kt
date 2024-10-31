@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +36,15 @@ import com.example.datastructurevisualizerapp.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
 
 @Composable
-fun WriteData(navController: NavController, onCsvSelectClick: () -> Unit) {
+fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelectClick: () -> Unit) {
     // Estado para almacenar el valor ingresado en el campo de texto
     var textInput by remember { mutableStateOf("") }
-    var numberList by remember { mutableStateOf<List<Int>>(emptyList()) }
+
+    // Observa la lista de números guardados usando collectAsState
+    val storedNumbers by dbViewModel.storedNumbers.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -82,8 +86,9 @@ fun WriteData(navController: NavController, onCsvSelectClick: () -> Unit) {
         // Botón para procesar los datos ingresados manualmente
         Button(
             onClick = {
-                // Procesar el texto ingresado y convertirlo a una lista de números
-                numberList = textInput.split(",").mapNotNull { it.trim().toIntOrNull() }
+                // Procesar el texto ingresado y actualizar la lista en el ViewModel
+                val numbers = textInput.split(",").mapNotNull { it.trim().toIntOrNull() }
+                dbViewModel.updateStoredNumbers(numbers)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,10 +100,10 @@ fun WriteData(navController: NavController, onCsvSelectClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Mostrar la lista de números guardados manualmente
-        if (numberList.isNotEmpty()) {
+        // Mostrar la lista de números guardada
+        if (storedNumbers.isNotEmpty()) {
             Text(
-                text = "Datos guardados: ${numberList.joinToString(", ")}",
+                text = "Datos guardados: ${storedNumbers.joinToString(", ")}",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color(0xFF1A2A3A)
@@ -107,7 +112,7 @@ fun WriteData(navController: NavController, onCsvSelectClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Titulo para la opción de subir archivo
+        // Título para la opción de subir archivo
         Text(
             text = "O suba su archivo .CSV:",
             fontSize = 24.sp,
