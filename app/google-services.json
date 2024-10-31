@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "775606357694",
+    "project_id": "datastructurevisualizer-45cf8",
+    "storage_bucket": "datastructurevisualizer-45cf8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775606357694:android:e7acd888808e1e1d4e18ef",
+        "android_client_info": {
+          "package_name": "com.example.datastructurevisualizerapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmGP_T-_R3dtpWHJKpCqzUyTOHiFoj86Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

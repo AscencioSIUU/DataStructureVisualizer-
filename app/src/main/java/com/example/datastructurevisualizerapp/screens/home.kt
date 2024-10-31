@@ -17,14 +17,14 @@ import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 
 @Composable
-fun homeScreen(navController: NavController, user: String, email: String, password: String){
+fun homeScreen(navController: NavController) {
     val context = LocalContext.current
     val activity = context as? Activity
 
+    // Permitir que la pantalla cambie de orientación
     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
-
-    LazyVerticalGrid (
+    LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(8.dp),
@@ -37,11 +37,7 @@ fun homeScreen(navController: NavController, user: String, email: String, passwo
             )
         }
     }
-
-
 }
-
-
 
 private val dataStructuresCollection = listOf(
     R.drawable.mergeicon to R.string.data_structure_merge,

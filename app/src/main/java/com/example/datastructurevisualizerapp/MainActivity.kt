@@ -124,7 +124,7 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
 
     var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
     var priceCoins by remember { mutableStateOf<List<Double>>(emptyList()) }
-
+    val coinNames = listOf("bitcoin", "ethereum", "maker", "bittensor", "monero", "aave", "quant", "okb", "solana", "litecoin", "arweave" , "polkadot", "chainlink", "neo", "aptos", "uniswap", "helium", "celestia", "thorchain", "cosmos", "pendle", "filecoin", "sui", "apecoin")
 
     runBlocking {
         //if(isConected){
@@ -133,10 +133,16 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                     val fetchedCoins = coinRepository.getAllCoins()
                     val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
                     coins = fetchedCoinPrices
-                    coins.forEach{coin ->
-                        Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
-                    }
+                    //coins.forEach{coin ->
+                    //    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                    //}
+                    //Log.d("ALL?", "${coins}")
+                    Log.d("SEPARTOOOOR", "------------------------------------------------------------------------------")
 
+                    val fetchedManualCoinPrices = coinRepository.getManualCoinPrices(coinNames)
+                    fetchedManualCoinPrices.forEach{coinName ->
+                        Log.d("CoinData", "Coin: ${coinName}")
+                    }
                     dbViewModel.clearDb()
                     dbViewModel.insertAllCoins(fetchedCoinPrices)
 
@@ -145,7 +151,6 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                 }
             }
         //}
-
     }
 
 
@@ -157,11 +162,15 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                 coins = fetchedCoinPrices
                 val pricesList = fetchedCoinPrices.mapNotNull { it.price }
                 priceCoins = pricesList
-                priceCoins.forEach { price ->
-                    Log.d("prices", "$price")
-                }
-                coins.forEach{coin ->
-                    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                //priceCoins.forEach { price ->
+                //    Log.d("prices", "$price")
+                //}
+                //coins.forEach{coin ->
+                //    Log.d("CoinData", "Coin: ${coin.name}, Id: ${coin.id}, Symbol: ${coin.symbol} Price: ${coin.price}")
+                //}
+                val fetchedManualCoinPrices = coinRepository.getManualCoinPrices(coinNames)
+                fetchedManualCoinPrices.forEach{coinName ->
+                    Log.d("CoinData", "Coin: ${coinName}")
                 }
 
             } catch (e: Exception) {
@@ -194,43 +203,44 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
         ) {
             val barData = dbViewModel.getCoinDataBar(25)
             val barGraphViewModel : BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
-            NavHost( navController = navController, startDestination = "login") {
+            NavHost( navController = navController, startDestination = "createAccount") {
 
 
                 var valuesList = priceCoins
 
+
                 composable("login") {
-                    LoginScreen(navController) { name, email, password ->
+                    LoginScreen(
+                        viewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+                        navController = navController
+                    ) { name, email, password ->
                         userName = name
                         userEmail = email
                         userPassword = password
                         isLoggedIn = true
                     }
                 }
+
                 composable("createAccount"){
                     CreateAccountScreen(navController)
                 }
 
-                composable("home/{user}/{email}/{password}") { backStackEntry ->
-                    val user = backStackEntry.arguments?.getString("user")
-                    val email = backStackEntry.arguments?.getString("email")
-                    val password = backStackEntry.arguments?.getString("password")
-                    barGraphViewModel.resetData()
-                    homeScreen(navController,user = user.orEmpty(), email = email.orEmpty(), password = password.orEmpty())
+                composable("home") {
+                    homeScreen(navController = navController)
                 }
 
                 composable("writeData") {
                     WriteData(navController)
                 }
-                composable("profile/{user}/{email}/{password}") { backStackEntry ->
-
-                    val user = backStackEntry.arguments?.getString("user")
-                    val email = backStackEntry.arguments?.getString("email")
-                    val password = backStackEntry.arguments?.getString("password")
-
-
-                    userProfileScreen(user.toString(),email.toString(),password.toString(),navController)
+                composable("profile") {
+                    userProfileScreen(
+                        navController = navController,
+                        onLogout = {
+                            isLoggedIn = false  // Actualizar estado de login cuando se cierra sesión
+                        }
+                    )
                 }
+
 
                 //navegacion de todas las pantallas
                 composable("Merge Sort") {

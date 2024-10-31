@@ -1,8 +1,10 @@
 package com.example.datastructurevisualizerapp.screens
 
+import LoginScreenViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,14 +24,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
 
+
 @Composable
-fun LoginScreen(navController: NavController, onLogin: (String, String, String) -> Unit) {    // Variables para almacenar el texto de entrada
-    val name = remember { mutableStateOf(TextFieldValue("")) }
-    val password = remember { mutableStateOf(TextFieldValue("")) }
+fun LoginScreen(
+    viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    navController: NavController,
+    onLogin: (String, String, String) -> Unit
+) {
     val email = remember { mutableStateOf(TextFieldValue("")) }
+    val password = remember { mutableStateOf(TextFieldValue("")) }
+    val errorMessage = remember { mutableStateOf("") } // Para mostrar mensajes de error
 
     Column(
         modifier = Modifier
@@ -38,6 +46,15 @@ fun LoginScreen(navController: NavController, onLogin: (String, String, String) 
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Mostrar mensaje de error si existe
+        if (errorMessage.value.isNotEmpty()) {
+            Text(
+                text = errorMessage.value,
+                color = Color.Red,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+
         // Título
         Text(
             text = "Iniciar Sesión",
@@ -47,18 +64,6 @@ fun LoginScreen(navController: NavController, onLogin: (String, String, String) 
             color = Color(0xFF1A2A3A)
         )
 
-        // Campo de texto para el nombre
-        OutlinedTextField(
-            value = name.value,
-            onValueChange = { name.value = it },
-            label = { Text("Nombre") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-                .padding(horizontal = 30.dp)
-        )
-
-
         // Campo de texto para el email
         OutlinedTextField(
             value = email.value,
@@ -67,7 +72,6 @@ fun LoginScreen(navController: NavController, onLogin: (String, String, String) 
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
-                .padding(horizontal = 30.dp)
         )
 
         // Campo de texto para la contraseña
@@ -77,45 +81,57 @@ fun LoginScreen(navController: NavController, onLogin: (String, String, String) 
             label = { Text("Password") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp)
-                .padding(horizontal = 30.dp)
-
+                .padding(bottom = 32.dp),
+            visualTransformation = PasswordVisualTransformation()
         )
 
-        // Botones
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        // Botón para iniciar sesión
+        Button(
+            onClick = {
+                if (email.value.text.isEmpty() || password.value.text.isEmpty()) {
+                    errorMessage.value = "Por favor, llena todos los campos"
+                } else {
+                    viewModel.signInWithEmailAndPassword(
+                        email.value.text,
+                        password.value.text,
+                        {
+                            onLogin(email.value.text, password.value.text, password.value.text)
+                            navController.navigate("home")
+                        },
+                        { exception ->
+                            errorMessage.value = "Error: ${exception.message}"
+                        }
+                    )
+                }
+            },
+            enabled = email.value.text.isNotEmpty() && password.value.text.isNotEmpty(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 30.dp)
         ) {
-            Button(
-                onClick = { navController.navigate("createAccount") },
-                shape = RoundedCornerShape(50.dp), // Borde redondeado
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = "Crear Cuenta",
-                    fontSize = 16.sp,
-                    color = Color.White // Texto blanco
-                )
-            }
-            Button(
-                onClick = {
-                    onLogin(name.value.text,email.value.text,password.value.text)
-                    navController.navigate("home/${name.value.text}/${email.value.text}/${password.value.text}")
-                },
-                enabled = name.value.text.isNotEmpty() && email.value.text.isNotEmpty() && password.value.text.isNotEmpty(),
-                shape = RoundedCornerShape(50.dp), // Borde redondeado
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B5563)),
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = "Iniciar Sesión",
-                    fontSize = 16.sp,
-                    color = Color.White // Texto blanco
-                )
-            }
+            Text(
+                text = "Iniciar Sesión",
+                fontSize = 16.sp,
+                color = Color.White // Texto blanco
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Texto de enlace para ir a registro
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("¿No tienes cuenta? ")
+            Text(
+                text = "Regístrate",
+                color = Color(0xFF0F9D58),
+                modifier = Modifier.clickable {
+                    navController.navigate("createAccount")
+                }
+            )
         }
     }
 }
