@@ -1,5 +1,6 @@
 package com.example.datastructurevisualizerapp.screens
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -107,7 +108,10 @@ fun WriteData(navController: NavController){
             color = Color(0xFF1A2A3A)
         )
         Button(
-            onClick = { /* Implementar lógica de carga de archivo */ },
+            onClick = {
+                // Implementar lógica de carga de archivo CSV
+                pickCsvFile(navController)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -115,5 +119,17 @@ fun WriteData(navController: NavController){
         ) {
             Text("Seleccione un archivo", color = Color(0xFF1A2A3A))
         }
+
     }
+    
 }
+
+private fun pickCsvFile(navController: NavController) {
+    val intent = Intent(Intent.ACTION_GET_CONTENT)
+    intent.type = "text/csv"
+    intent.addCategory(Intent.CATEGORY_OPENABLE)
+
+    // Inicia la actividad para seleccionar el archivo
+    navController.context.startActivity(Intent.createChooser(intent, "Seleccione un archivo CSV"))
+}
+

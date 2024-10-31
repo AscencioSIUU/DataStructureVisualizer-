@@ -83,6 +83,7 @@ class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
+    
 }
 
 data class AllCoins(val coinList: List<Coin> = listOf())
