@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.stateIn
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
 
@@ -83,7 +85,25 @@ class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    
+    fun processCsvNumbers(csvContent: String) {
+        // Convertir el contenido del CSV en una lista de números
+        val numberList = csvContent.lines()
+            .filter { it.isNotBlank() }
+            .flatMap { line ->
+                line.split(",").mapNotNull { it.trim().toIntOrNull() }
+            }
+
+        // Aquí puedes actualizar una lista local o usar StateFlow para que sea observable
+        viewModelScope.launch {
+            // Aquí podrías usar un `MutableStateFlow` para que el UI pueda observar los cambios
+            _storedNumbers.value = numberList
+        }
+    }
+
+    // Un MutableStateFlow para almacenar los números y observar cambios
+    private val _storedNumbers = MutableStateFlow<List<Int>>(emptyList())
+    val storedNumbers: StateFlow<List<Int>> = _storedNumbers
+
 }
 
 data class AllCoins(val coinList: List<Coin> = listOf())

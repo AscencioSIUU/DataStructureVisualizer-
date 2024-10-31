@@ -1,6 +1,7 @@
 package com.example.datastructurevisualizerapp
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -52,12 +53,22 @@ import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
 import com.example.datastructurevisualizerapp.views.InsertionSortVisualizer
 import com.example.datastructurevisualizerapp.views.QueueViewModel
+import androidx.compose.ui.platform.LocalContext
+
 
 
 class MainActivity : ComponentActivity() {
+
+    // Crear una referencia al ViewModel
+    private lateinit var dbViewModel: DbViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Inicializar el ViewModel
+        dbViewModel = androidx.lifecycle.ViewModelProvider(this, ViewModelProvider.Factory)[DbViewModel::class.java]
+
         setContent {
             val isConnected = checkForInternet(this)
             DataStructureVisualizerAppTheme {
@@ -65,6 +76,30 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PICK_CSV_FILE_REQUEST_CODE && resultCode == RESULT_OK) {
+            data?.data?.let { uri ->
+                val inputStream = contentResolver.openInputStream(uri)
+                val csvContent = inputStream?.bufferedReader().use { it?.readText() } ?: ""
+
+                // Llama al ViewModel para procesar el contenido del CSV y almacenar los números
+                dbViewModel.processCsvNumbers(csvContent)
+            }
+        }
+    }
+
+    private val PICK_CSV_FILE_REQUEST_CODE = 1
+
+    fun startCsvFilePicker() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "text/csv"
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        startActivityForResult(Intent.createChooser(intent, "Seleccione un archivo CSV"), PICK_CSV_FILE_REQUEST_CODE)
+    }
+
 
     private fun checkForInternet(context: Context): Boolean {
 
@@ -230,8 +265,16 @@ fun MyDataStructureVisualizerApp(isConected: Boolean) {
                 }
 
                 composable("writeData") {
-                    WriteData(navController)
+                    val context = LocalContext.current
+                    val activity = context as? MainActivity
+
+                    WriteData(
+                        navController = navController,
+                        onCsvSelectClick = { activity?.startCsvFilePicker() }
+                    )
                 }
+
+
                 composable("profile") {
                     userProfileScreen(
                         navController = navController,

@@ -37,12 +37,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun WriteData(navController: NavController){
+fun WriteData(navController: NavController, onCsvSelectClick: () -> Unit) {
     // Estado para almacenar el valor ingresado en el campo de texto
     var textInput by remember { mutableStateOf("") }
     var numberList by remember { mutableStateOf<List<Int>>(emptyList()) }
 
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -55,6 +55,7 @@ fun WriteData(navController: NavController){
             modifier = Modifier.padding(bottom = 32.dp),
             color = Color(0xFF1A2A3A)
         )
+
         // Subtitulo
         Text(
             text = "Sus datos deben estar separados por comas. Ej: 1,2,3,4",
@@ -66,7 +67,8 @@ fun WriteData(navController: NavController){
             textAlign = TextAlign.Center,
             color = Color(0xFF1A2A3A)
         )
-        // Ingreso de datos
+
+        // Ingreso de datos manuales
         OutlinedTextField(
             value = textInput,
             onValueChange = { textInput = it },
@@ -74,8 +76,10 @@ fun WriteData(navController: NavController){
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(20.dp))
-        // Botón para procesar los datos ingresados
+
+        // Botón para procesar los datos ingresados manualmente
         Button(
             onClick = {
                 // Procesar el texto ingresado y convertirlo a una lista de números
@@ -88,8 +92,10 @@ fun WriteData(navController: NavController){
         ) {
             Text("Guardar datos", color = Color(0xFF1A2A3A))
         }
+
         Spacer(modifier = Modifier.height(20.dp))
-        // Mostrar la lista de números guardada
+
+        // Mostrar la lista de números guardados manualmente
         if (numberList.isNotEmpty()) {
             Text(
                 text = "Datos guardados: ${numberList.joinToString(", ")}",
@@ -98,7 +104,9 @@ fun WriteData(navController: NavController){
                 color = Color(0xFF1A2A3A)
             )
         }
+
         Spacer(modifier = Modifier.height(20.dp))
+
         // Titulo para la opción de subir archivo
         Text(
             text = "O suba su archivo .CSV:",
@@ -107,10 +115,11 @@ fun WriteData(navController: NavController){
             modifier = Modifier.padding(bottom = 32.dp),
             color = Color(0xFF1A2A3A)
         )
+
+        // Botón para seleccionar un archivo CSV
         Button(
             onClick = {
-                // Implementar lógica de carga de archivo CSV
-                pickCsvFile(navController)
+                onCsvSelectClick() // Llamada a la función para abrir el selector de archivos
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,17 +128,7 @@ fun WriteData(navController: NavController){
         ) {
             Text("Seleccione un archivo", color = Color(0xFF1A2A3A))
         }
-
     }
-    
 }
 
-private fun pickCsvFile(navController: NavController) {
-    val intent = Intent(Intent.ACTION_GET_CONTENT)
-    intent.type = "text/csv"
-    intent.addCategory(Intent.CATEGORY_OPENABLE)
-
-    // Inicia la actividad para seleccionar el archivo
-    navController.context.startActivity(Intent.createChooser(intent, "Seleccione un archivo CSV"))
-}
 
