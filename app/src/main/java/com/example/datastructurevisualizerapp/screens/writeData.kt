@@ -3,21 +3,16 @@ package com.example.datastructurevisualizerapp.screens
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,27 +22,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.datastructurevisualizerapp.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.datastructurevisualizerapp.MainActivity
 import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
 
 @Composable
-fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelectClick: () -> Unit) {
+fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelectClick: () -> Unit ) {
     // Estado para almacenar el valor ingresado en el campo de texto
     var textInput by remember { mutableStateOf("") }
 
     // Observa la lista de números guardados usando collectAsState
     val storedNumbers by dbViewModel.storedNumbers.collectAsState()
 
+    // Estados para mostrar información del archivo CSV seleccionado
+    var csvFileName by remember { mutableStateOf<String?>(null) }
+    var csvContentPreview by remember { mutableStateOf<List<String>?>(null) }
+
+    val context = LocalContext.current as MainActivity // Obtener el contexto como MainActivity
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -60,7 +61,7 @@ fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelec
             color = Color(0xFF1A2A3A)
         )
 
-        // Subtitulo
+        // Subtítulo
         Text(
             text = "Sus datos deben estar separados por comas. Ej: 1,2,3,4",
             fontSize = 20.sp,
@@ -124,7 +125,7 @@ fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelec
         // Botón para seleccionar un archivo CSV
         Button(
             onClick = {
-                onCsvSelectClick() // Llamada a la función para abrir el selector de archivos
+                onCsvSelectClick() // Llamada al lambda para abrir el selector de archivos
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,7 +134,26 @@ fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelec
         ) {
             Text("Seleccione un archivo", color = Color(0xFF1A2A3A))
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Mostrar el nombre del archivo CSV seleccionado y los primeros 3 valores
+        csvFileName?.let { name ->
+            Text(
+                text = "Archivo seleccionado: $name",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1A2A3A)
+            )
+        }
+
+        csvContentPreview?.let { preview ->
+            Text(
+                text = "Primeros 3 valores del archivo: ${preview.joinToString(", ")}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color(0xFF1A2A3A)
+            )
+        }
     }
 }
-
-

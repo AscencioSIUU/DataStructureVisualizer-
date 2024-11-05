@@ -1,11 +1,14 @@
 package com.example.datastructurevisualizerapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import kotlinx.coroutines.*
 import androidx.activity.ComponentActivity
@@ -54,6 +57,10 @@ import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
 import com.example.datastructurevisualizerapp.views.InsertionSortVisualizer
 import com.example.datastructurevisualizerapp.views.QueueViewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import android.net.Uri
+import android.Manifest
 
 
 
@@ -77,27 +84,69 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Manejar la respuesta después de seleccionar un archivo CSV
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == PICK_CSV_FILE_REQUEST_CODE && resultCode == RESULT_OK) {
             data?.data?.let { uri ->
-                val inputStream = contentResolver.openInputStream(uri)
-                val csvContent = inputStream?.bufferedReader().use { it?.readText() } ?: ""
-
-                // Llama al ViewModel para procesar el contenido del CSV y almacenar los números
-                dbViewModel.processCsvNumbers(csvContent)
+                // Obtener el nombre del archivo y leer el contenido
+                val fileName = getFileName(uri)
+                Log.d("CSV File", "Selected CSV File: $fileName")
+                readCsvFile(uri)
             }
         }
     }
 
     private val PICK_CSV_FILE_REQUEST_CODE = 1
 
+    // Abrir explorador de archivos para seleccionar un archivo CSV
     fun startCsvFilePicker() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "text/csv"
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        startActivityForResult(Intent.createChooser(intent, "Seleccione un archivo CSV"), PICK_CSV_FILE_REQUEST_CODE)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "text/csv"
+        }
+        startActivityForResult(intent, PICK_CSV_FILE_REQUEST_CODE)
+    }
+
+    // Obtener el nombre del archivo CSV seleccionado
+    @SuppressLint("Range")
+    private fun getFileName(uri: Uri): String {
+        var name = ""
+        val cursor = contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            }
+        }
+        return name
+    }
+
+    // Leer el archivo CSV y mostrar las primeras 3 líneas
+    private fun readCsvFile(uri: Uri) {
+        try {
+            val inputStream = contentResolver.openInputStream(uri)
+            val bufferedReader = inputStream?.bufferedReader()
+            val csvContent = bufferedReader?.lineSequence()?.toList() ?: listOf()
+
+            // Imprimir los primeros 3 números del CSV para verificar el contenido
+            if (csvContent.isNotEmpty()) {
+                val numbers = csvContent.take(3) // Tomar las primeras 3 líneas
+                numbers.forEach { line ->
+                    Log.d("CSV Content", "Línea: $line")
+                }
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // Pedir permisos para acceder al almacenamiento
+    private fun checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 100)
+        }
     }
 
 
