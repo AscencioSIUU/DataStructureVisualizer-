@@ -32,18 +32,16 @@ import com.example.datastructurevisualizerapp.MainActivity
 import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
 
 @Composable
-fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelectClick: () -> Unit ) {
-    // Estado para almacenar el valor ingresado en el campo de texto
+fun WriteData(
+    navController: NavController,
+    dbViewModel: DbViewModel,
+    onCsvSelectClick: () -> Unit
+) {
     var textInput by remember { mutableStateOf("") }
 
-    // Observa la lista de números guardados usando collectAsState
-    val storedNumbers by dbViewModel.storedNumbers.collectAsState()
-
-    // Estados para mostrar información del archivo CSV seleccionado
-    var csvFileName by remember { mutableStateOf<String?>(null) }
-    var csvContentPreview by remember { mutableStateOf<List<String>?>(null) }
-
-    val context = LocalContext.current as MainActivity // Obtener el contexto como MainActivity
+    // Observa los datos ingresados manualmente y del CSV por separado
+    val manualData by dbViewModel.datosManuales.collectAsState()
+    val csvData by dbViewModel.datosCsv.collectAsState()
 
     Column(
         modifier = Modifier
@@ -89,7 +87,7 @@ fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelec
             onClick = {
                 // Procesar el texto ingresado y actualizar la lista en el ViewModel
                 val numbers = textInput.split(",").mapNotNull { it.trim().toIntOrNull() }
-                dbViewModel.updateStoredNumbers(numbers)
+                dbViewModel.updateManualData(numbers)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,10 +99,10 @@ fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelec
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Mostrar la lista de números guardada
-        if (storedNumbers.isNotEmpty()) {
+        // Mostrar solo la lista de números guardados manualmente
+        if (manualData.isNotEmpty()) {
             Text(
-                text = "Datos guardados: ${storedNumbers.joinToString(", ")}",
+                text = "Datos guardados manualmente: ${manualData.joinToString(", ")}",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color(0xFF1A2A3A)
@@ -137,19 +135,10 @@ fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelec
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Mostrar el nombre del archivo CSV seleccionado y los primeros 3 valores
-        csvFileName?.let { name ->
+        // Mostrar los primeros 3 valores del archivo CSV si existen
+        if (csvData.isNotEmpty()) {
             Text(
-                text = "Archivo seleccionado: $name",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A2A3A)
-            )
-        }
-
-        csvContentPreview?.let { preview ->
-            Text(
-                text = "Primeros 3 valores del archivo: ${preview.joinToString(", ")}",
+                text = "Primeros 3 valores del archivo: ${csvData.take(3).joinToString(", ")}",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color(0xFF1A2A3A)
@@ -157,3 +146,5 @@ fun WriteData(navController: NavController, dbViewModel: DbViewModel, onCsvSelec
         }
     }
 }
+
+

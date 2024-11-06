@@ -20,6 +20,18 @@ import kotlinx.coroutines.launch
 class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
 
 
+    // Flujos para los datos
+    val datosManuales = MutableStateFlow<List<Int>>(emptyList())
+    val datosCsv = MutableStateFlow<List<Int>>(emptyList())
+
+    fun updateManualData(data: List<Int>) {
+        datosManuales.value = data
+    }
+
+    fun updateCsvData(data: List<Int>) {
+        datosCsv.value = data
+    }
+
     var allCoins: StateFlow<AllCoins> = coinRepository.getAllCoinsStream().map { AllCoins(it)}
         .stateIn(
             scope = viewModelScope,

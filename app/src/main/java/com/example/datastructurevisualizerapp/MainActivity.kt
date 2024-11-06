@@ -1,19 +1,21 @@
 package com.example.datastructurevisualizerapp
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
-import kotlinx.coroutines.*
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,44 +28,55 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.datastructurevisualizerapp.data.CoinRepository
+import com.example.datastructurevisualizerapp.domain.models.Coin
 import com.example.datastructurevisualizerapp.screens.CreateAccountScreen
 import com.example.datastructurevisualizerapp.screens.LoginScreen
 import com.example.datastructurevisualizerapp.screens.NavigationBar
-import com.example.datastructurevisualizerapp.views.StackViewModel
-import com.example.datastructurevisualizerapp.views.StackVisualizer
 import com.example.datastructurevisualizerapp.screens.WriteData
 import com.example.datastructurevisualizerapp.screens.topBar
 import com.example.datastructurevisualizerapp.screens.homeScreen
 import com.example.datastructurevisualizerapp.screens.userProfileScreen
 import com.example.datastructurevisualizerapp.ui.theme.DataStructureVisualizerAppTheme
-import com.example.datastructurevisualizerapp.views.BinaryTreesVisualizer
-import com.example.datastructurevisualizerapp.views.BubbleSortVisualizer
-import com.example.datastructurevisualizerapp.views.DoubleLinkedListsVisualizer
-import com.example.datastructurevisualizerapp.views.HeapsVisualizer
-import com.example.datastructurevisualizerapp.views.MergeSortVisualizer
-import com.example.datastructurevisualizerapp.views.QueuesVisualizer
-import com.example.datastructurevisualizerapp.views.QuickSortVisualizer
-import com.example.datastructurevisualizerapp.views.SelectionSortVisualizer
-import com.example.datastructurevisualizerapp.data.CoinRepository
 import com.example.datastructurevisualizerapp.viewmodels.BarGraphViewModel
 import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
-import com.example.datastructurevisualizerapp.views.InsertionSortVisualizer
-import com.example.datastructurevisualizerapp.views.QueueViewModel
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import android.net.Uri
-import android.Manifest
-import com.example.datastructurevisualizerapp.domain.models.Coin
+import com.example.datastructurevisualizerapp.views.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
     // Crear una referencia al ViewModel
     private lateinit var dbViewModel: DbViewModel
+
+    // Manejador del Activity Result para la selección de archivos
+    private val selectCsvLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            val fileName = getFileName(it)
+
+            if (fileName.endsWith(".csv", ignoreCase = true)) {
+                Log.d("CSV File", "Selected CSV File: $fileName")
+                readCsvFile(it)  // Solo leer si es un archivo CSV
+            } else {
+                Log.e("File Selection", "El archivo seleccionado no es un CSV.")
+            }
+        }
+    }
+
+    // Manejador de permisos usando la API moderna
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.d("Permissions", "Permiso concedido")
+        } else {
+            Log.d("Permissions", "Permiso denegado")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,28 +96,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Manejar la respuesta después de seleccionar un archivo CSV
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_CSV_FILE_REQUEST_CODE && resultCode == RESULT_OK) {
-            data?.data?.let { uri ->
-                // Obtener el nombre del archivo y leer el contenido
-                val fileName = getFileName(uri)
-                Log.d("CSV File", "Selected CSV File: $fileName")
-                readCsvFile(uri)
-            }
-        }
-    }
-
-    private val PICK_CSV_FILE_REQUEST_CODE = 1
-
-    // Abrir explorador de archivos para seleccionar un archivo CSV
+    // Abrir explorador de archivos para seleccionar un archivo
     fun startCsvFilePicker() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "text/csv"
-        }
-        startActivityForResult(intent, PICK_CSV_FILE_REQUEST_CODE)
+        selectCsvLauncher.launch("*/*")
     }
 
     // Obtener el nombre del archivo CSV seleccionado
@@ -127,11 +121,19 @@ class MainActivity : ComponentActivity() {
             val bufferedReader = inputStream?.bufferedReader()
             val csvContent = bufferedReader?.lineSequence()?.toList() ?: listOf()
 
-            // Imprimir los primeros 3 números del CSV para verificar el contenido
+            // Convertir las líneas del archivo CSV en una lista de números
+            val numbers = csvContent.flatMap { line ->
+                line.split(",").mapNotNull { it.trim().toIntOrNull() }
+            }
+
+            // Actualizar los números guardados en el ViewModel
+            dbViewModel.updateCsvData(numbers)
+
+            // Log para verificar las primeras tres líneas
             if (csvContent.isNotEmpty()) {
-                val numbers = csvContent.take(3) // Tomar las primeras 3 líneas
-                numbers.forEach { line ->
-                    Log.d("CSV Content", "Línea: $line")
+                val preview = csvContent.take(3)
+                preview.forEachIndexed { index, line ->
+                    Log.d("CSV Content", "Línea $index: $line")
                 }
             }
 
@@ -140,20 +142,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+
     // Pedir permisos para acceder al almacenamiento
     private fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 100)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.d("Permissions", "Permission granted!")
-        } else {
-            Log.d("Permissions", "Permission denied!")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            when {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED -> {
+                    // El permiso ya ha sido concedido
+                    Log.d("Permissions", "El permiso ya está concedido")
+                }
+                else -> {
+                    // Pedir permiso al usuario
+                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }
         }
     }
 
