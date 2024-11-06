@@ -310,9 +310,11 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
                 composable("Binary Trees") {
                     BinaryTreesVisualizer(
                         valuesList = priceCoins,
-                        onUseManualEntries = { dbViewModel.storedNumbers.value.map { it.toDouble() } }
+                        onUseManualEntries = { dbViewModel.datosManuales.value.map { it.toDouble() } },
+                        onUseCsvEntries = { dbViewModel.datosCsv.value.map { it.toDouble() } }
                     )
                 }
+
 
                 composable("Heaps") {
                     HeapsVisualizer()

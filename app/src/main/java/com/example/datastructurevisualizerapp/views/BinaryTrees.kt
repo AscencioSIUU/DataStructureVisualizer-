@@ -20,8 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 
 @Composable
-fun BinaryTreesVisualizer(valuesList: List<Double>, onUseManualEntries: () -> List<Double>?) {
-
+fun BinaryTreesVisualizer(
+    valuesList: List<Double>,
+    onUseManualEntries: () -> List<Double>?,
+    onUseCsvEntries: () -> List<Double>?
+) {
     // Árbol binario actual
     var currentTree by remember { mutableStateOf<TreeNode?>(null) }
     var index by remember { mutableStateOf(0) }
@@ -37,7 +40,6 @@ fun BinaryTreesVisualizer(valuesList: List<Double>, onUseManualEntries: () -> Li
     var expanded by remember { mutableStateOf(false) }
     var selectedValueToDelete by remember { mutableStateOf<Double?>(null) }
 
-    // Interfaz para agregar y eliminar elementos del árbol
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,6 +50,7 @@ fun BinaryTreesVisualizer(valuesList: List<Double>, onUseManualEntries: () -> Li
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Botón para agregar elementos desde `valuesList`
             Button(
                 onClick = {
                     if (index < valuesList.size) {
@@ -83,6 +86,25 @@ fun BinaryTreesVisualizer(valuesList: List<Double>, onUseManualEntries: () -> Li
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Text("Utilizar los ingresados")
+            }
+
+            // **Botón para utilizar los datos del CSV**
+            Button(
+                onClick = {
+                    val csvEntries = onUseCsvEntries() // Llama la función para obtener los datos del CSV
+                    if (csvEntries != null && csvEntries.isNotEmpty()) {
+                        csvEntries.forEach { value ->
+                            currentTree = insert(currentTree, value)  // Inserta cada valor en el árbol
+                        }
+                        // Actualiza la lista de valores en el árbol
+                        treeValues = getTreeValues(currentTree)
+                        Log.d("BinaryTree", "Datos CSV agregados al árbol: $csvEntries")
+                        printTree(currentTree)
+                    }
+                },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Text("Utilizar CSV")
             }
 
             // Menú desplegable para seleccionar el valor a eliminar
@@ -155,6 +177,7 @@ fun BinaryTreesVisualizer(valuesList: List<Double>, onUseManualEntries: () -> Li
         }
     }
 }
+
 
 
 @Composable
