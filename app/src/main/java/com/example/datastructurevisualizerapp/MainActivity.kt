@@ -240,6 +240,24 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
         priceCoins = dbViewModel.getCoinPrices()
         barData = dbViewModel.getCoinDataBar(25)
         barGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
+    }else if(dataSourceType == "CSV"){
+        barData = dbViewModel.getCSVList(samples = 10)
+        val doubles: MutableList<Double> = mutableListOf()
+        for (item in barData.heights)  {
+            doubles.add(item.toDouble())
+        }
+
+
+        barGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
+    }else if(dataSourceType == "Manual"){
+        barData = dbViewModel.getManualList()
+        val doubles: MutableList<Double> = mutableListOf()
+        for (item in barData.heights)  {
+            doubles.add(item.toDouble())
+        }
+
+
+        barGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
     }
 
 
@@ -290,6 +308,16 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
                     val context = LocalContext.current
                     val activity = context as? MainActivity
 
+
+
+                    WriteData(
+                        navController = navController,
+                        dbViewModel = dbViewModel,
+                        onCsvSelectClick = { activity?.startCsvFilePicker() }
+                    )
+                }
+
+                composable("dataSelection"){
                     VisualizationDataInputScreen(
                         randomClick = {
                             dataSourceType = "Random"
@@ -300,19 +328,16 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
                             return@VisualizationDataInputScreen true
                         },
                         manualClick = {
+                            dataSourceType = "Manual"
                             return@VisualizationDataInputScreen true
                         },
                         csvClick = {
+                            dataSourceType = "CSV"
                             return@VisualizationDataInputScreen true
                         },
+
                         selectedChip = dataSourceType
                     )
-                    /*
-                    WriteData(
-                        navController = navController,
-                        dbViewModel = dbViewModel,
-                        onCsvSelectClick = { activity?.startCsvFilePicker() }
-                    )*/
                 }
 
                 composable("profile") {

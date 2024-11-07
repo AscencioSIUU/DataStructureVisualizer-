@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
@@ -98,13 +99,38 @@ fun NavigationBar(
             IconButton(
                 onClick = {
                     selectedItem = 1
+                    navController.navigate("dataSelection")
+                }
+            ) {
+                Icon(
+                    Icons.Filled.Build,
+                    contentDescription = null,
+                    tint = getItemColor(1)
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ){
+            Canvas(modifier = Modifier.size(100.dp)) {
+                drawOval(
+                    color = Color(0xFF4B5563),
+                    size = this.size
+                )
+            }
+            IconButton(
+                onClick = {
+                    selectedItem = 2
                     navController.navigate("home")
                 }
             ) {
                 Icon(
                     Icons.Filled.Home,
                     contentDescription = null,
-                    tint = getItemColor(1)
+                    tint = getItemColor(2)
                 )
             }
         }
@@ -123,13 +149,13 @@ fun NavigationBar(
             }
             IconButton(
                 onClick = {
-                    selectedItem = 2
+                    selectedItem = 3
                     navController.navigate("profile")                }
             ){
                 Icon(
                     Icons.Filled.AccountCircle,
                     contentDescription = null,
-                    tint = getItemColor(2)
+                    tint = getItemColor(3)
                 )
 
             }
