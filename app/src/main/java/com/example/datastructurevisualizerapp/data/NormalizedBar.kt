@@ -12,4 +12,4 @@ class NormalizedBar(
     var selected by mutableStateOf(initialIsSelected)
 }
 
-data class BarData(val normalizedBars: List<NormalizedBar>, val scaleMarks: List<Float>)
+data class BarData(val normalizedBars: List<NormalizedBar>, val scaleMarks: List<Float>, val heights: List<Float>)

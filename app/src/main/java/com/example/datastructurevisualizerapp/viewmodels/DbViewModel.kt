@@ -13,12 +13,14 @@ import kotlinx.coroutines.flow.stateIn
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
-
 
     // Flujos para los datos
     val datosManuales = MutableStateFlow<List<Int>>(emptyList())
@@ -80,7 +82,7 @@ class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
         }
 
 
-        return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks)
+        return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks, heights = emptyList())
 
     }
 
@@ -97,30 +99,60 @@ class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    fun processCsvNumbers(csvContent: String) {
-        // Convertir el contenido del CSV en una lista de números
-        val numberList = csvContent.lines()
-            .filter { it.isNotBlank() }
-            .flatMap { line ->
-                line.split(",").mapNotNull { it.trim().toIntOrNull() }
-            }
+    @Composable
+    fun getCSVList(samples: Int, marks: Int = 5): BarData {
+        val csv = datosCsv.collectAsState().value
+        val numbers: MutableList<Int> = csv.toMutableList()
 
-        // Aquí puedes actualizar una lista local o usar StateFlow para que sea observable
-        viewModelScope.launch {
-            // Aquí podrías usar un `MutableStateFlow` para que el UI pueda observar los cambios
-            _storedNumbers.value = numberList
+        val max = numbers.maxOrNull() ?: 1
+
+        var normalizedData = emptyList<NormalizedBar>()
+        var scaleMarks = emptyList<Float>()
+        if(numbers.isNotEmpty()){
+            val num = numbers[0]
+            normalizedData = List(csv.size) { NormalizedBar(normalizedHeight = (numbers[it].toDouble()/max.toDouble()).toFloat(), label = numbers[it].toString(), initialIsSelected = false) }
+
+            scaleMarks = List(marks) { (it.toFloat() / marks) * max.toFloat() }
         }
+
+
+        val heights: MutableList<Float> = mutableListOf()
+        for( num in numbers){
+            heights.add(num.toFloat())
+        }
+
+        return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks, heights = heights)
     }
 
 
-    // Un MutableStateFlow para almacenar los números y observar cambios
-    private val _storedNumbers = MutableStateFlow<List<Int>>(emptyList())
-    val storedNumbers: StateFlow<List<Int>> = _storedNumbers
+    @Composable
+    fun getManualList(marks: Int = 5): BarData {
+        val manuales = datosManuales.collectAsState().value
+        val numbers: MutableList<Int> = manuales.toMutableList()
 
-    fun updateStoredNumbers(numbers: List<Int>) {
-        _storedNumbers.value = numbers
+        val max = numbers.maxOrNull() ?: 1
+
+        var normalizedData = emptyList<NormalizedBar>()
+        var scaleMarks = emptyList<Float>()
+        if(numbers.isNotEmpty()){
+            val num = numbers[0]
+            normalizedData = List(manuales.size) { NormalizedBar(normalizedHeight = (numbers[it].toDouble()/max.toDouble()).toFloat(), label = numbers[it].toString(), initialIsSelected = false) }
+
+            scaleMarks = List(marks) { (it.toFloat() / marks) * max.toFloat() }
+        }
+
+
+        val heights: MutableList<Float> = mutableListOf()
+        for( num in numbers){
+            heights.add(num.toFloat())
+        }
+
+        return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks, heights = heights)
     }
+
 }
+
+
 
 data class AllCoins(val coinList: List<Coin> = listOf())
 
