@@ -2,10 +2,11 @@ package com.example.datastructurevisualizerapp.screens
 
 import android.Manifest
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,32 +29,30 @@ import androidx.navigation.NavController
 import com.example.datastructurevisualizerapp.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.database.FirebaseDatabase
+import java.io.ByteArrayOutputStream
 
 @Composable
 fun userProfileScreen(
     navController: NavController,
     onLogout: () -> Unit
 ) {
-    // Inicializar FirebaseAuth
     val firebaseAuth = FirebaseAuth.getInstance()
     val currentUser = firebaseAuth.currentUser
+    val databaseRef = FirebaseDatabase.getInstance().getReference("users/${currentUser?.uid}")
 
-    // Variables para mostrar y editar los datos del usuario
-    var userName by remember { mutableStateOf("") }
-    var userEmail by remember { mutableStateOf("") }
-    var userPassword by remember { mutableStateOf("") } // Usado para cambiar la contraseña
-
-    //Variables para la camara
+    var userName by remember { mutableStateOf(currentUser?.displayName ?: "") }
+    var userEmail by remember { mutableStateOf(currentUser?.email ?: "") }
+    var userPassword by remember { mutableStateOf("") }
     var userPhoto by remember { mutableStateOf<Bitmap?>(null) }
 
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-        userPhoto = bitmap // Asigna el Bitmap de la foto tomada
-    }
-
-    // Obtener el contexto actual para mostrar mensajes de Toast
     val context = LocalContext.current
 
-    // Launcher para solicitar permisos de cámara
+    // Configuración de la cámara
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        userPhoto = bitmap
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -64,17 +63,20 @@ fun userProfileScreen(
         }
     }
 
-
-
-    // Cargar los datos del usuario si está autenticado
+    // Cargar la foto desde Firebase Realtime Database
     LaunchedEffect(currentUser) {
-        currentUser?.let { user ->
-            user.displayName?.let { userName = it }
-            userEmail = user.email ?: "Email no disponible"
+        currentUser?.let {
+            databaseRef.child("profileImage").get().addOnSuccessListener { snapshot ->
+                val imageBase64 = snapshot.value as? String
+                if (!imageBase64.isNullOrEmpty()) {
+                    val decodedString = Base64.decode(imageBase64, Base64.DEFAULT)
+                    userPhoto = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                }
+            }.addOnFailureListener {
+                Toast.makeText(context, "Error al cargar la foto de perfil", Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
-    val ovalColor = colorResource(id = R.color.mainColor)
 
     Column(
         modifier = Modifier
@@ -97,8 +99,8 @@ fun userProfileScreen(
                 .padding(8.dp)
                 .clickable {
                     permissionLauncher.launch(Manifest.permission.CAMERA)
-                }, // Solicita el permiso de cámara al hacer clic
-                contentAlignment = Alignment.Center
+                },
+            contentAlignment = Alignment.Center
         ) {
             if (userPhoto != null) {
                 Image(
@@ -110,7 +112,7 @@ fun userProfileScreen(
                 Icon(
                     Icons.Filled.AccountCircle,
                     contentDescription = null,
-                    tint = ovalColor,
+                    tint = colorResource(R.color.mainColor),
                     modifier = Modifier.size(110.dp)
                 )
             }
@@ -118,7 +120,6 @@ fun userProfileScreen(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        // Campo de texto con el nombre del usuario editable
         OutlinedTextField(
             value = userName,
             onValueChange = { userName = it },
@@ -127,7 +128,6 @@ fun userProfileScreen(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        // Campo de texto con el email del usuario editable
         OutlinedTextField(
             value = userEmail,
             onValueChange = { userEmail = it },
@@ -136,7 +136,6 @@ fun userProfileScreen(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        // Campo de texto para cambiar la contraseña
         OutlinedTextField(
             value = userPassword,
             onValueChange = { userPassword = it },
@@ -147,39 +146,61 @@ fun userProfileScreen(
 
         Spacer(modifier = Modifier.size(32.dp))
 
-        // Botón para actualizar el perfil (nombre, correo y contraseña)
         Button(
             onClick = {
-                // Actualizar nombre
+                // Actualizar el nombre en Firebase Authentication
                 val profileUpdates = UserProfileChangeRequest.Builder()
                     .setDisplayName(userName)
                     .build()
 
                 currentUser?.updateProfile(profileUpdates)?.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        println("Nombre actualizado con éxito")
+                        Toast.makeText(context, "Nombre actualizado con éxito", Toast.LENGTH_SHORT).show()
                     } else {
-                        println("Error al actualizar el nombre: ${task.exception?.message}")
+                        Toast.makeText(context, "Error al actualizar el nombre", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                // Actualizar email
+                // Actualizar el email en Firebase Authentication
                 currentUser?.updateEmail(userEmail)?.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        println("Email actualizado con éxito")
+                        Toast.makeText(context, "Email actualizado con éxito", Toast.LENGTH_SHORT).show()
                     } else {
-                        println("Error al actualizar el email: ${task.exception?.message}")
+                        Toast.makeText(context, "Error al actualizar el email", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                // Actualizar contraseña si no está vacío
+                // Actualizar la contraseña si no está vacía
                 if (userPassword.isNotEmpty()) {
                     currentUser?.updatePassword(userPassword)?.addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            println("Contraseña actualizada con éxito")
+                            Toast.makeText(context, "Contraseña actualizada con éxito", Toast.LENGTH_SHORT).show()
                         } else {
-                            println("Error al actualizar la contraseña: ${task.exception?.message}")
+                            Toast.makeText(context, "Error al actualizar la contraseña", Toast.LENGTH_SHORT).show()
                         }
+                    }
+                }
+
+                // Guardar la foto en Firebase Realtime Database
+                val imageBase64 = userPhoto?.let { bitmap ->
+                    val byteArrayOutputStream = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+                    val byteArray = byteArrayOutputStream.toByteArray()
+                    Base64.encodeToString(byteArray, Base64.DEFAULT)
+                }
+
+                // Guardar los datos del perfil en Realtime Database
+                val userProfile = mapOf(
+                    "name" to userName,
+                    "email" to userEmail,
+                    "profileImage" to imageBase64
+                )
+
+                databaseRef.setValue(userProfile).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(context, "Perfil actualizado en la base de datos", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Error al guardar en la base de datos", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -197,13 +218,12 @@ fun userProfileScreen(
 
         Spacer(modifier = Modifier.size(32.dp))
 
-        // Botón para cerrar sesión
         Button(
             onClick = {
-                FirebaseAuth.getInstance().signOut()  // Cerrar sesión en Firebase
-                onLogout()  // Cambiar isLoggedIn a false
+                firebaseAuth.signOut()
+                onLogout()
                 navController.navigate("login") {
-                    popUpTo("profile") { inclusive = true }  // Limpiar la pila de navegación
+                    popUpTo("profile") { inclusive = true }
                 }
             },
             modifier = Modifier
