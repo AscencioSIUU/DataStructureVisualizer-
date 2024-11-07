@@ -80,7 +80,7 @@ class DbViewModel(private val coinRepository: OfflineCoinRepoIn): ViewModel() {
         }
 
 
-        return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks)
+        return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks, heights = emptyList())
 
     }
 

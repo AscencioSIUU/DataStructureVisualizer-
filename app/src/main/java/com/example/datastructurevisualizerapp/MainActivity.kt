@@ -35,10 +35,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.datastructurevisualizerapp.data.CoinRepository
+import com.example.datastructurevisualizerapp.data.data_source.getBarData
 import com.example.datastructurevisualizerapp.domain.models.Coin
 import com.example.datastructurevisualizerapp.screens.CreateAccountScreen
 import com.example.datastructurevisualizerapp.screens.LoginScreen
 import com.example.datastructurevisualizerapp.screens.NavigationBar
+import com.example.datastructurevisualizerapp.screens.VisualizationDataInputScreen
 import com.example.datastructurevisualizerapp.screens.WriteData
 import com.example.datastructurevisualizerapp.screens.topBar
 import com.example.datastructurevisualizerapp.screens.homeScreen
@@ -49,6 +51,9 @@ import com.example.datastructurevisualizerapp.viewmodels.DbViewModel
 import com.example.datastructurevisualizerapp.views.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.ArrayList
+
+
 
 class MainActivity : ComponentActivity() {
 
@@ -178,6 +183,8 @@ class MainActivity : ComponentActivity() {
             return networkInfo.isConnected
         }
     }
+
+
 }
 
 @Composable
@@ -193,26 +200,49 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
     var coins by remember { mutableStateOf<List<Coin>>(emptyList()) }
     var priceCoins by remember { mutableStateOf<List<Double>>(emptyList()) }
     val coinNames = listOf("bitcoin", "ethereum", "maker", "bittensor", "monero", "aave", "quant", "okb", "solana", "litecoin", "arweave", "polkadot", "chainlink", "neo", "aptos", "uniswap", "helium", "celestia", "thorchain", "cosmos", "pendle", "filecoin", "sui", "apecoin")
+    var barData = dbViewModel.getCoinDataBar(25)
+    var barGraphViewModel: BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
 
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            try {
-                val fetchedCoins = coinRepository.getAllCoins()
-                val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
-                coins = fetchedCoinPrices
-                val pricesList = fetchedCoinPrices.mapNotNull { it.price }
-                priceCoins = pricesList
 
-                val fetchedManualCoinPrices = coinRepository.getManualCoinPrices(coinNames)
-                fetchedManualCoinPrices.forEach { coinName ->
-                    Log.d("CoinData", "Coin: ${coinName}")
+    var dataSourceType by remember {
+        mutableStateOf("Random")
+    }
+
+    if(dataSourceType == "Random"){
+        barData = getBarData()
+        val doubles: MutableList<Double> = mutableListOf()
+        for (item in barData.heights)  {
+            doubles.add(item.toDouble())
+        }
+        priceCoins = doubles
+        barGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
+    }else if (dataSourceType == "Crypto"){
+        LaunchedEffect(Unit) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val fetchedCoins = coinRepository.getAllCoins()
+                    val fetchedCoinPrices = coinRepository.getCoinPrices(fetchedCoins)
+                    coins = fetchedCoinPrices
+                    val pricesList = fetchedCoinPrices.mapNotNull { it.price }
+                    priceCoins = pricesList
+
+                    val fetchedManualCoinPrices = coinRepository.getManualCoinPrices(coinNames)
+                    fetchedManualCoinPrices.forEach { coinName ->
+                        Log.d("CoinData", "Coin: ${coinName}")
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("CoinDataError", "${e.message}")
                 }
-
-            } catch (e: Exception) {
-                Log.e("CoinDataError", "${e.message}")
             }
         }
+
+        priceCoins = dbViewModel.getCoinPrices()
+        barData = dbViewModel.getCoinDataBar(25)
+        barGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
     }
+
+
 
     Scaffold(
         topBar = { topBar() },
@@ -232,8 +262,7 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            val barData = dbViewModel.getCoinDataBar(25)
-            val barGraphViewModel: BarGraphViewModel = BarGraphViewModel(normalizedBar = barData.normalizedBars, scaleMarks = barData.scaleMarks)
+
             NavHost(navController = navController, startDestination = "createAccount") {
 
                 composable("login") {
@@ -261,11 +290,29 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
                     val context = LocalContext.current
                     val activity = context as? MainActivity
 
+                    VisualizationDataInputScreen(
+                        randomClick = {
+                            dataSourceType = "Random"
+                            return@VisualizationDataInputScreen true
+                        },
+                        cryptoClick = {
+                            dataSourceType = "Crypto"
+                            return@VisualizationDataInputScreen true
+                        },
+                        manualClick = {
+                            return@VisualizationDataInputScreen true
+                        },
+                        csvClick = {
+                            return@VisualizationDataInputScreen true
+                        },
+                        selectedChip = dataSourceType
+                    )
+                    /*
                     WriteData(
                         navController = navController,
                         dbViewModel = dbViewModel,
                         onCsvSelectClick = { activity?.startCsvFilePicker() }
-                    )
+                    )*/
                 }
 
                 composable("profile") {
@@ -326,4 +373,8 @@ fun MyDataStructureVisualizerApp(isConnected: Boolean) {
             }
         }
     }
+}
+
+fun randomClick(){
+
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -176,6 +177,7 @@ fun Chip(
 
     Box(
         modifier = modifier
+            .size(width = 100.dp, height = 50.dp)
             .drawWithCache {
                 val cornerRadius = size.height / 2f
                 path.moveTo(borderWidth + size.width / 2f, borderWidth)
@@ -242,25 +244,50 @@ fun Chip(
 @OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun ChipsSelector(
-    // 1
-    state: ChipSelectorState,
-    // 2
-    modifier: Modifier = Modifier,
+    randomClick: () -> Boolean,
+    cryptoClick: () -> Boolean,
+    manualClick: () -> Boolean,
+    csvClick: () -> Boolean,
+    cselectedChip: String
 ) {
-    // 3
+
+    var selectedChip: String by remember { mutableStateOf(cselectedChip) }
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center,
     ) {
-        // 4
-        state.chips.forEach { chip ->
-            Chip(
-                label = chip,
-                isSelected = state.isSelected(chip),
-                onClick = { state.onChipClick(chip) }
-            )
+        Chip(label = "Random ", isSelected = if (selectedChip == "Random") true else false){
+            randomClick()
+            selectedChip = "Random"
         }
+
+        Chip(label = "Crypto", isSelected = if (selectedChip == "Crypto") true else false){
+            selectedChip = if(cryptoClick()){
+                "Crypto"
+            }else {
+                "Random"
+            }
+
+        }
+
+        Chip(label = "Manual", isSelected = if (selectedChip == "Manual") true else false){
+            selectedChip = if(manualClick()){
+                "Manual"
+            }else {
+                "Random"
+            }
+
+        }
+
+        Chip(label = "CSV", isSelected = if (selectedChip == "CSV") true else false){
+            selectedChip = if(csvClick()){
+                "CSV"
+            }else {
+                "Random"
+            }
+
+        }
+
     }
 }
 
@@ -268,5 +295,5 @@ fun ChipsSelector(
 @Composable
 private fun ChipPreview() {
     val chipState: ChipSelectorStateImpl = ChipSelectorStateImpl(listOf("Avocado", "Strawberry", "Lemon"))
-    ChipsSelector(state = chipState)
+    //ChipsSelector()
 }

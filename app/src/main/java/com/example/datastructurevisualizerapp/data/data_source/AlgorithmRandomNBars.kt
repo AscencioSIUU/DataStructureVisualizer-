@@ -15,5 +15,5 @@ fun getBarData(start: Int = 1, end: Int = 100, samples: Int =  20): BarData {
 
     val marks = ceil(samples/3f).toInt()
     val scaleMarks = List(marks) { (it.toFloat() / marks) * max.toFloat() }
-    return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks)
+    return BarData(normalizedBars = normalizedData, scaleMarks = scaleMarks, heights = rawData)
 }
