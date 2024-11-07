@@ -1,6 +1,13 @@
 package com.example.datastructurevisualizerapp.screens
 
+import android.Manifest
+import android.graphics.Bitmap
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -10,6 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,6 +42,29 @@ fun userProfileScreen(
     var userName by remember { mutableStateOf("") }
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") } // Usado para cambiar la contraseña
+
+    //Variables para la camara
+    var userPhoto by remember { mutableStateOf<Bitmap?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        userPhoto = bitmap // Asigna el Bitmap de la foto tomada
+    }
+
+    // Obtener el contexto actual para mostrar mensajes de Toast
+    val context = LocalContext.current
+
+    // Launcher para solicitar permisos de cámara
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            cameraLauncher.launch(null)
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
 
     // Cargar los datos del usuario si está autenticado
     LaunchedEffect(currentUser) {
@@ -60,19 +92,30 @@ fun userProfileScreen(
         )
         Spacer(modifier = Modifier.size(16.dp))
         Box(
-            modifier = Modifier.size(140.dp).padding(8.dp),
-            contentAlignment = Alignment.Center
+            modifier = Modifier
+                .size(140.dp)
+                .padding(8.dp)
+                .clickable {
+                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                }, // Solicita el permiso de cámara al hacer clic
+                contentAlignment = Alignment.Center
         ) {
-            Canvas(modifier = Modifier.size(100.dp)) {
-                drawOval(color = ovalColor, size = this.size)
+            if (userPhoto != null) {
+                Image(
+                    bitmap = userPhoto!!.asImageBitmap(),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier.size(110.dp)
+                )
+            } else {
+                Icon(
+                    Icons.Filled.AccountCircle,
+                    contentDescription = null,
+                    tint = ovalColor,
+                    modifier = Modifier.size(110.dp)
+                )
             }
-            Icon(
-                Icons.Filled.AccountCircle,
-                contentDescription = null,
-                tint = colorResource(R.color.white),
-                modifier = Modifier.size(110.dp)
-            )
         }
+
         Spacer(modifier = Modifier.size(16.dp))
 
         // Campo de texto con el nombre del usuario editable
